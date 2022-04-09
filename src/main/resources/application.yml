@@ -1,0 +1,20 @@
+server:
+  # 端口号
+  port: 8088
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/shiqu?characterEncoding=utf-8&useSSL=false&serverTimezone=Hongkong
+    username: shiqu
+    password: xxx
+    type: com.alibaba.druid.pool.DruidDataSource
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.kuokuor.shiqu.entity
+  configuration:
+    # 自动生成主键
+    use-generated-keys: true
+    # 字段大小写区分（驼峰式）
+    map-underscore-to-camel-case: true
