@@ -1,7 +1,6 @@
 package com.kuokuor.shiqu;
 
 import com.kuokuor.shiqu.service.UserService;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -16,10 +15,5 @@ public class UserTest {
 
     @Autowired
     private UserService userService;
-
-    @Test
-    public void selectUser() {
-        System.out.println(userService.selectUserById(1));
-    }
 
 }

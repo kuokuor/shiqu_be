@@ -83,4 +83,8 @@ public class Constants {
      */
     public static final Integer SYSTEM_USER_ID = 0;
 
+    /**
+     * 用户注销状态
+     */
+    public static final Integer USER_TYPE_DESTROY = 886;
 }

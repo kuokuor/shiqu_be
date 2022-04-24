@@ -11,11 +11,21 @@ import com.kuokuor.shiqu.entity.User;
 public interface UserService {
 
     /**
-     * 通过Id查询用户
+     * 登录
      *
-     * @param userId
+     * @param email      邮箱[作为账号]
+     * @param password   密码
+     * @param rememberMe 记住我
      * @return
      */
-    User selectUserById(int userId);
+    String login(String email, String password, boolean rememberMe);
+
+    /**
+     * 得到当前用户信息
+     *
+     * @param userId 用户Id
+     * @return
+     */
+    User getHolderInfo(int userId);
 
 }
