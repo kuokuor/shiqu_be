@@ -31,6 +31,22 @@
         where id = #{id}
     </select>
 
+    <!--通过邮箱查询-->
+    <select id="queryByEmail" resultMap="UserMap">
+        select id,
+               email,
+               password,
+               salt,
+               avatar,
+               nickname,
+               sex,
+               description,
+               type,
+               create_time
+        from user
+        where email = #{email}
+    </select>
+
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
         insert into user(email, password, salt, avatar, nickname, sex, description, type, create_time)

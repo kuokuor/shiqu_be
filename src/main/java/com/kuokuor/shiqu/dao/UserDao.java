@@ -21,6 +21,14 @@ public interface UserDao {
     User queryById(Integer id);
 
     /**
+     * 通过Email查询单条数据
+     *
+     * @param email 邮箱
+     * @return 实例对象
+     */
+    User queryByEmail(String email);
+
+    /**
      * 新增数据
      *
      * @param user 实例对象

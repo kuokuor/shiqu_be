@@ -1,7 +1,5 @@
 package com.kuokuor.shiqu.service;
 
-import com.kuokuor.shiqu.entity.User;
-
 /**
  * 用户业务层接口
  *
@@ -11,11 +9,13 @@ import com.kuokuor.shiqu.entity.User;
 public interface UserService {
 
     /**
-     * 通过Id查询用户
+     * 登录
      *
-     * @param userId
+     * @param email      邮箱[作为账号]
+     * @param password   密码
+     * @param rememberMe 记住我
      * @return
      */
-    User selectUserById(int userId);
+    String login(String email, String password, boolean rememberMe);
 
 }

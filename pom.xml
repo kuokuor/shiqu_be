@@ -102,6 +102,12 @@
             <version>1.29.0</version>
         </dependency>
 
+        <!--common工具-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

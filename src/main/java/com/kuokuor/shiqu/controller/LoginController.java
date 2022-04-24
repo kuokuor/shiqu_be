@@ -1,17 +1,17 @@
-package com.kuokuor.shiqu;
+package com.kuokuor.shiqu.controller;
 
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 用户测试类
+ * 登录控制层
  *
  * @Author: GreatBiscuit
- * @Date: 2022/4/9 16:36
+ * @Date: 2022/4/24 19:03
  */
-@SpringBootTest
-public class UserTest {
+@RestController
+public class LoginController {
 
     @Autowired
     private UserService userService;
