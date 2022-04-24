@@ -28,4 +28,11 @@ public interface UserService {
      */
     User getHolderInfo(int userId);
 
+    /**
+     * 获取验证码
+     *
+     * @param email
+     * @return
+     */
+    String getVerificationCode(String email);
 }
