@@ -1,5 +1,7 @@
 package com.kuokuor.shiqu.service;
 
+import com.kuokuor.shiqu.entity.User;
+
 /**
  * 用户业务层接口
  *
@@ -17,5 +19,13 @@ public interface UserService {
      * @return
      */
     String login(String email, String password, boolean rememberMe);
+
+    /**
+     * 得到当前用户信息
+     *
+     * @param userId 用户Id
+     * @return
+     */
+    User getHolderInfo(int userId);
 
 }

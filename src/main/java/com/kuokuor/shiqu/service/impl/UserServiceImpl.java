@@ -71,4 +71,15 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    /**
+     * 得到当前用户信息
+     *
+     * @param userId 用户Id
+     * @return
+     */
+    @Override
+    public User getHolderInfo(int userId) {
+        return userDao.queryById(userId);
+    }
 }
