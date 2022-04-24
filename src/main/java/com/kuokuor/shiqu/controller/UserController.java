@@ -60,4 +60,16 @@ public class UserController {
         return R.ok();
     }
 
+    /**
+     * 发送验证码
+     *
+     * @param email
+     * @return
+     */
+    @PostMapping("/login/sendVerificationCode")
+    public R sendVerificationCode(String email) {
+        String msg = userService.getVerificationCode(email);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
 }
