@@ -48,4 +48,16 @@ public class UserController {
         return R.ok(userService.getHolderInfo(StpUtil.getLoginIdAsInt()));
     }
 
+    /**
+     * 登出
+     *
+     * @return
+     */
+    @SaCheckLogin
+    @PostMapping("/logout")
+    public R logout() {
+        StpUtil.logout();
+        return R.ok();
+    }
+
 }
