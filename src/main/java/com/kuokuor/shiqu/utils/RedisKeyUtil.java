@@ -15,16 +15,27 @@ public class RedisKeyUtil {
     private static final String PREFIX_FOLLOWER = "follower";
     private static final String PREFIX_USER = "user";
     private static final String PREFIX_POST = "note";
-    private static final String USER_CODE = "user_code";
+    private static final String FIND_PASSWORD_CODE = "find_password_code";
+    private static final String REGISTER_CODE = "register_code";
 
     /**
-     * 生成验证码Key
+     * 生成注册时的验证码Key
      *
      * @param email
      * @return
      */
-    public static String getCodeKey(String email) {
-        return USER_CODE + SPLIT + email;
+    public static String getRegisterCodeKey(String email) {
+        return REGISTER_CODE + SPLIT + email;
+    }
+
+    /**
+     * 生成找回密码时的验证码Key
+     *
+     * @param email
+     * @return
+     */
+    public static String getFindPasswordCodeKey(String email) {
+        return FIND_PASSWORD_CODE + SPLIT + email;
     }
 
     /**

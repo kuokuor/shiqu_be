@@ -61,14 +61,54 @@ public class UserController {
     }
 
     /**
-     * 发送验证码
+     * 发送验证码For注册
      *
-     * @param email
+     * @param email 邮箱
      * @return
      */
-    @PostMapping("/login/sendVerificationCode")
-    public R sendVerificationCode(String email) {
-        String msg = userService.getVerificationCode(email);
+    @PostMapping("/sendCodeForRegister")
+    public R sendCodeForRegister(String email) {
+        String msg = userService.sendCodeForRegister(email);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    /**
+     * 注册
+     *
+     * @param email    邮箱
+     * @param password 密码
+     * @param code     验证码
+     * @return
+     */
+    @PostMapping("/register")
+    public R register(String email, String password, String code) {
+        String msg = userService.register(email, password, code);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    /**
+     * 发送验证码For重置密码
+     *
+     * @param email 邮箱
+     * @return
+     */
+    @PostMapping("/sendCodeForResetPass")
+    public R sendCodeForResetPass(String email) {
+        String msg = userService.sendCodeForResetPass(email);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    /**
+     * 找回密码
+     *
+     * @param email    邮箱
+     * @param password 密码
+     * @param code     验证码
+     * @return
+     */
+    @PostMapping("/resetPass")
+    public R resetPass(String email, String password, String code) {
+        String msg = userService.resetPass(email, password, code);
         return msg == null ? R.ok() : R.fail(msg);
     }
 
