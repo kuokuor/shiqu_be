@@ -29,10 +29,38 @@ public interface UserService {
     User getHolderInfo(int userId);
 
     /**
-     * 获取验证码
+     * 发送验证码For注册
      *
      * @param email
      * @return
      */
-    String getVerificationCode(String email);
+    String sendCodeForRegister(String email);
+
+    /**
+     * 发送验证码For重置密码
+     *
+     * @param email
+     * @return
+     */
+    String sendCodeForResetPass(String email);
+
+    /**
+     * 注册
+     *
+     * @param email
+     * @param password
+     * @param code
+     * @return
+     */
+    String register(String email, String password, String code);
+
+    /**
+     * 找回密码
+     *
+     * @param email
+     * @param password
+     * @param code
+     * @return
+     */
+    String resetPass(String email, String password, String code);
 }
