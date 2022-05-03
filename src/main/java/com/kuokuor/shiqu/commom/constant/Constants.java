@@ -46,37 +46,37 @@ public class Constants {
     /**
      * 主题 评论
      */
-    public static final String TOPIC_COMMENT = "comment";
+    public static final String TOPIC_COMMENT = "shiqu_comment";
 
     /**
      * 主题 点赞
      */
-    public static final String TOPIC_LIKE = "like";
+    public static final String TOPIC_LIKE = "shiqu_like";
 
     /**
      * 主题 关注
      */
-    public static final String TOPIC_FOLLOW = "follow";
+    public static final String TOPIC_FOLLOW = "shiqu_follow";
 
     /**
      * 主题 收藏
      */
-    public static final String TOPIC_COLLECT = "collect";
+    public static final String TOPIC_COLLECT = "shiqu_collect";
 
     /**
      * 主题 发帖
      */
-    public static final String TOPIC_PUBLISH = "publish";
+    public static final String TOPIC_PUBLISH = "shiqu_publish";
 
     /**
      * 主题 删帖
      */
-    public static final String TOPIC_DELETE = "delete";
+    public static final String TOPIC_DELETE = "shiqu_delete";
 
     /**
      * 主题 发送邮件
      */
-    public static final String TOPIC_SEND_MAIL = "sendMail";
+    public static final String TOPIC_SEND_MAIL = "shiqu_sendMail";
 
     /**
      * 系统用户ID
