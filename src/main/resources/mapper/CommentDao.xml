@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kuokuor.shiqu.dao.CommentDao">
+
+    <resultMap type="com.kuokuor.shiqu.entity.Comment" id="CommentMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="entityType" column="entity_type" jdbcType="INTEGER"/>
+        <result property="entityId" column="entity_id" jdbcType="INTEGER"/>
+        <result property="targetId" column="target_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CommentMap">
+        select id,
+               user_id,
+               entity_type,
+               entity_id,
+               target_id,
+               content,
+               state,
+               create_time
+        from comment
+        where id = #{id}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from comment
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="entityType != null">
+                and entity_type = #{entityType}
+            </if>
+            <if test="entityId != null">
+                and entity_id = #{entityId}
+            </if>
+            <if test="targetId != null">
+                and target_id = #{targetId}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into comment(user_id, entity_type, entity_id, target_id, content, state, create_time)
+        values (#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{state}, #{createTime})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update comment
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="entityType != null">
+                entity_type = #{entityType},
+            </if>
+            <if test="entityId != null">
+                entity_id = #{entityId},
+            </if>
+            <if test="targetId != null">
+                target_id = #{targetId},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from comment
+        where id = #{id}
+    </delete>
+
+</mapper>
+
