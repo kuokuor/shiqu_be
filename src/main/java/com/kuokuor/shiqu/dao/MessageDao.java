@@ -1,6 +1,7 @@
 package com.kuokuor.shiqu.dao;
 
 import com.kuokuor.shiqu.entity.Message;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 消息表(Message)表数据库访问层
@@ -8,6 +9,7 @@ import com.kuokuor.shiqu.entity.Message;
  * @author makejava
  * @since 2022-05-05 19:48:47
  */
+@Mapper
 public interface MessageDao {
 
     /**

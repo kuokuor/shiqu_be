@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kuokuor.shiqu.dao.ImageDao">
+
+    <insert id="insertNoteImages">
+        insert into image(url, note_id)
+        values
+        <foreach collection="images" item="image" separator=",">
+            (#{image}, #{noteId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteNoteImages">
+        delete
+        from image
+        where note_id = #{noteId}
+    </delete>
+
+    <select id="selectNoteImages" resultType="string">
+        select url
+        from image
+        where note_id = #{noteId}
+    </select>
+
+</mapper>
+

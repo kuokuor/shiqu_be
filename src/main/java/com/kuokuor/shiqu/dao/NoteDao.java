@@ -1,6 +1,7 @@
 package com.kuokuor.shiqu.dao;
 
 import com.kuokuor.shiqu.entity.Note;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * (Note)表数据库访问层
@@ -8,6 +9,7 @@ import com.kuokuor.shiqu.entity.Note;
  * @author makejava
  * @since 2022-05-05 19:37:37
  */
+@Mapper
 public interface NoteDao {
 
     /**

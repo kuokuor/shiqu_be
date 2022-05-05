@@ -1,6 +1,7 @@
 package com.kuokuor.shiqu.dao;
 
 import com.kuokuor.shiqu.entity.Comment;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 评论表(Comment)表数据库访问层
@@ -8,6 +9,7 @@ import com.kuokuor.shiqu.entity.Comment;
  * @author makejava
  * @since 2022-05-05 19:48:20
  */
+@Mapper
 public interface CommentDao {
 
     /**
