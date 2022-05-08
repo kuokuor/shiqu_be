@@ -59,4 +59,12 @@ public interface NoteService {
      */
     List<Map<String, Object>> queryAllByLimit(int userId, int offset, int limit, int orderMode);
 
+    /**
+     * 得到帖子信息
+     *
+     * @param noteId
+     * @return
+     */
+    Note getNoteById(int noteId);
+
 }

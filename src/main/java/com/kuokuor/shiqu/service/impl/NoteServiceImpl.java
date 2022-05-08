@@ -130,4 +130,14 @@ public class NoteServiceImpl implements NoteService {
         }
         return notes;
     }
+
+    /**
+     * 得到帖子信息
+     *
+     * @param noteId
+     * @return
+     */
+    public Note getNoteById(int noteId) {
+        return noteDao.queryById(noteId);
+    }
 }

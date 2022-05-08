@@ -184,20 +184,20 @@ public class UserController {
             return R.fail("用户不存在!");
         }
         int holderId = StpUtil.getLoginIdAsInt();
-        boolean hasLike = followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId);
-        if (hasLike) {
-            //取消点赞
+        // 是否以及关注
+        boolean hasFollow = followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId);
+        if (hasFollow) {
+            // 取消关注
             followService.unfollow(holderId, Constants.ENTITY_TYPE_USER, userId);
-            return R.ok();
         } else {
-            //点赞
+            // 关注
             // 防止用户关注自己
             if (holderId == userId) {
                 return R.fail("不能关注自己!");
             }
             followService.follow(holderId, Constants.ENTITY_TYPE_USER, userId, userId);
-            return R.ok();
         }
+        return R.ok();
     }
 
     /**
