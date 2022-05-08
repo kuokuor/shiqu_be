@@ -302,4 +302,49 @@ public class UserServiceImpl implements UserService {
 
         return userInfo;
     }
+
+    /**
+     * 修改用户信息
+     *
+     * @param user
+     */
+    @Override
+    public String updateUser(User user) {
+        User u = userDao.queryById(user.getId());
+        if (u == null) {
+            return "用户不存在!";
+        }
+        // 只有部分信息可以修改
+        u.setAvatar(user.getAvatar());
+        u.setNickname(user.getNickname());
+        u.setSex(user.getSex());
+        u.setDescription(user.getDescription());
+
+        userDao.update(u);
+        // 修改用户信息后要清除缓存
+        clearCache(user.getId());
+        return null;
+    }
+
+    //使用Redis优化
+    //1.优先从缓存里查
+    private User getCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return redisService.getCacheObject(redisKey);
+    }
+
+    //2.缓存没有就初始化
+    private User initCache(int userId) {
+        User user = userDao.querySimpleUserById(userId);
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisService.setCacheObject(redisKey, user, 1L, TimeUnit.HOURS);//1小时有效
+        return user;
+    }
+
+    //3.修改后清除缓存
+    private void clearCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisService.deleteObject(redisKey);
+    }
+
 }

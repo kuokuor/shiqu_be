@@ -74,4 +74,12 @@ public interface UserService {
      * @return
      */
     Map<String, Object> getUserInfoForUserPage(int userId, Integer holderId);
+
+    /**
+     * 修改用户信息
+     *
+     * @param user
+     * @return
+     */
+    String updateUser(User user);
 }

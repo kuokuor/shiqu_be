@@ -3,9 +3,11 @@ package com.kuokuor.shiqu.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.domain.R;
+import com.kuokuor.shiqu.entity.User;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * 用户Controller
@@ -121,6 +123,22 @@ public class UserController {
         Object data = userService.getUserInfoForUserPage(userId,
                 StpUtil.isLogin() == true ? StpUtil.getLoginIdAsInt() : null);
         return data == null ? R.fail("该用户不存在") : R.ok(data);
+    }
+
+    @SaCheckLogin
+    @PostMapping("/updateUserInfo")
+    public R updateUserInfo(User user) {
+        if (user == null) return R.fail("未获取到用户信息!");
+        // 基础处理
+        if (user.getNickname().length() > 15) return R.fail("昵称过长!");
+        if (user.getSex() < 0 || user.getSex() > 2) return R.fail("请选择正确的性别类型!");
+        // 将nickname Description
+        user.setNickname(HtmlUtils.htmlEscape(user.getNickname()));
+        user.setDescription(HtmlUtils.htmlEscape(user.getDescription()));
+        // 设置用户编号
+        user.setId(StpUtil.getLoginIdAsInt());
+        String msg = userService.updateUser(user);
+        return msg == null ? R.ok() : R.fail(msg);
     }
 
 }
