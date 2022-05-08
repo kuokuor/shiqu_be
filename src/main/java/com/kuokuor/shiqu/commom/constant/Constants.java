@@ -31,7 +31,7 @@ public class Constants {
     /**
      * 实体类型 帖子
      */
-    public static final Integer ENTITY_TYPE_POST = 1;
+    public static final Integer ENTITY_TYPE_NOTE = 1;
 
     /**
      * 实体类型 评论
