@@ -15,10 +15,10 @@ public interface LikeService {
      * @param entityType
      * @param entityId
      * @param entityUserId
-     * @param postId       让前端传入, 否则数据库交互过多
+     * @param noteId       让前端传入, 否则数据库交互过多
      * @return
      */
-    String like(int userId, int entityType, int entityId, int entityUserId, int postId);
+    String like(int userId, int entityType, int entityId, int entityUserId, int noteId);
 
     /**
      * 查询某个实体获赞的总数

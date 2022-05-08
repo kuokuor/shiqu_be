@@ -4,11 +4,9 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
+import com.kuokuor.shiqu.entity.Comment;
 import com.kuokuor.shiqu.entity.Note;
-import com.kuokuor.shiqu.service.FollowService;
-import com.kuokuor.shiqu.service.LikeService;
-import com.kuokuor.shiqu.service.NoteService;
-import com.kuokuor.shiqu.service.SearchService;
+import com.kuokuor.shiqu.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +36,9 @@ public class NoteController {
 
     @Autowired
     private SearchService searchService;
+
+    @Autowired
+    private CommentService commentService;
 
     /**
      * 查询帖子列表
@@ -115,14 +116,14 @@ public class NoteController {
      * @param entityType   被点赞的实体类型
      * @param entityId     被点赞的实体ID
      * @param entityUserId 被点赞的实体的发布者
-     * @param postId       帖子Id, 让前端传入, 减少数据库交互次数
+     * @param noteId       帖子Id, 让前端传入, 减少数据库交互次数
      * @return
      */
     @SaCheckLogin
     @PostMapping("/changeLiked")
-    public R changeLiked(int entityType, int entityId, int entityUserId, int postId) {
+    public R changeLiked(int entityType, int entityId, int entityUserId, int noteId) {
         int userId = StpUtil.getLoginIdAsInt();
-        String msg = likeService.like(userId, entityType, entityId, entityUserId, postId);
+        String msg = likeService.like(userId, entityType, entityId, entityUserId, noteId);
         return msg == null ? R.ok() : R.fail(msg);
     }
 
@@ -164,6 +165,16 @@ public class NoteController {
     @GetMapping("/search")
     public R search(String keyword, Integer type, int current, int limit) {
         return R.ok(searchService.searchPostList(keyword, current, limit, type));
+    }
+
+    @SaCheckLogin
+    @PostMapping("/sendComment")
+    public R sendComment(Comment comment) {
+        comment.setUserId(StpUtil.getLoginIdAsInt());
+        // 进行Html转义
+        comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
+        String msg = commentService.addComment(comment);
+        return msg == null ? R.ok() : R.fail(msg);
     }
 
 }

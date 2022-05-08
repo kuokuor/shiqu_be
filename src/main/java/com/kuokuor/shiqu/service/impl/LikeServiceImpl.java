@@ -42,11 +42,11 @@ public class LikeServiceImpl implements LikeService {
      * @param entityType   被点赞的实体类型
      * @param entityId     被点赞的实体ID
      * @param entityUserId 被点赞的实体的发布者
-     * @param postId       让前端传入, 否则数据库交互过多
+     * @param noteId       让前端传入, 否则数据库交互过多
      * @return
      */
     @Override
-    public String like(int userId, int entityType, int entityId, int entityUserId, int postId) {
+    public String like(int userId, int entityType, int entityId, int entityUserId, int noteId) {
         // 此处需要使用Redis的事务
         redisTemplate.execute(new SessionCallback() {
             @Override
@@ -82,7 +82,7 @@ public class LikeServiceImpl implements LikeService {
                     .setEntityType(entityType)
                     .setEntityId(entityId)
                     .setEntityUserId(entityUserId)
-                    .setData("postId", postId);
+                    .setData("noteId", noteId);
             // 发布事件
             eventProducer.fireEvent(event);
         }
