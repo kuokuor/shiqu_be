@@ -319,4 +319,48 @@ public class NoteServiceImpl implements NoteService {
     public Note getNoteById(int noteId) {
         return noteDao.queryById(noteId);
     }
+
+    /**
+     * 查询指定tag下的所有笔记
+     *
+     * @param tag
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> classify(int tag) {
+        int[] noteIds = tagDao.selectNoteByTag(tag);
+        // 把帖子相关信息封装起来传输
+        List<Map<String, Object>> notes = new ArrayList<>();
+        for (int noteId : noteIds) {
+            Note note = noteDao.queryById(noteId);
+            Map<String, Object> map = new HashMap<>();
+
+            // note
+            Map<String, Object> noteInfo = new HashMap<>();
+            noteInfo.put("id", note.getId());
+            noteInfo.put("title", note.getTitle());
+            noteInfo.put("editTime", note.getCreateTime());
+            noteInfo.put("headerImg", note.getHeadImg());
+            // 点赞数据处理
+            noteInfo.put("likeCount", likeService.findEntityLikeCount(Constants.ENTITY_TYPE_NOTE, note.getId()));
+            boolean liked = false;
+            // 如果当前有用户登录且点赞了
+            if (StpUtil.isLogin()) {
+                liked = likeService.userHasLike(StpUtil.getLoginIdAsInt(), Constants.ENTITY_TYPE_NOTE, note.getId());
+            }
+            noteInfo.put("liked", liked);
+            map.put("note", noteInfo);
+
+            // author
+            Map<String, Object> author = new HashMap<>();
+            User authorInfo = userDao.querySimpleUserById(note.getUserId());
+            author.put("id", authorInfo.getId());
+            author.put("avatar", authorInfo.getAvatar());
+            author.put("nickname", authorInfo.getNickname());
+            map.put("author", author);
+
+            notes.add(map);
+        }
+        return notes;
+    }
 }

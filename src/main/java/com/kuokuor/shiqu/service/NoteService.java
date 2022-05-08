@@ -68,4 +68,12 @@ public interface NoteService {
      */
     Note getNoteById(int noteId);
 
+    /**
+     * 查询指定tag下的所有笔记
+     *
+     * @param tag
+     * @return
+     */
+    List<Map<String, Object>> classify(int tag);
+
 }

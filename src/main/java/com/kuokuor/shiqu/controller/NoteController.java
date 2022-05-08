@@ -167,6 +167,12 @@ public class NoteController {
         return R.ok(searchService.searchPostList(keyword, current, limit, type));
     }
 
+    /**
+     * 发送评论
+     *
+     * @param comment
+     * @return
+     */
     @SaCheckLogin
     @PostMapping("/sendComment")
     public R sendComment(Comment comment) {
@@ -175,6 +181,17 @@ public class NoteController {
         comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
         String msg = commentService.addComment(comment);
         return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    /**
+     * 查询指定tag下的所有笔记
+     *
+     * @param tag
+     * @return
+     */
+    @GetMapping("/classify")
+    public R classify(int tag) {
+        return R.ok(noteService.classify(tag));
     }
 
 }
