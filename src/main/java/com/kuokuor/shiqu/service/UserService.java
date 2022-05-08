@@ -82,4 +82,12 @@ public interface UserService {
      * @return
      */
     String updateUser(User user);
+
+    /**
+     * 判断用户是否存在
+     *
+     * @param userId
+     * @return
+     */
+    boolean exitsUser(int userId);
 }

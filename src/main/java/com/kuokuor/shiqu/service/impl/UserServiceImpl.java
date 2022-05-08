@@ -326,6 +326,17 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    /**
+     * 判断用户是否存在
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public boolean exitsUser(int userId) {
+        return userDao.querySimpleUserById(userId) != null;
+    }
+
     //使用Redis优化
     //1.优先从缓存里查
     private User getCache(int userId) {

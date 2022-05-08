@@ -2,8 +2,10 @@ package com.kuokuor.shiqu.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
+import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
 import com.kuokuor.shiqu.entity.User;
+import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FollowService followService;
 
     /**
      * 登录
@@ -153,6 +158,31 @@ public class UserController {
             return R.ok(StpUtil.getLoginIdAsInt());
         } else {
             // 如果未登录
+            return R.ok();
+        }
+    }
+
+    // ----------------------------以上为用户信息相关操作----------------------------
+
+    @SaCheckLogin
+    @PostMapping("/changeFollowed")
+    public R changeFollowed(int userId) {
+        if (!userService.exitsUser(userId)) {
+            return R.fail("用户不存在!");
+        }
+        int holderId = StpUtil.getLoginIdAsInt();
+        boolean hasLike = followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId);
+        if (hasLike) {
+            //取消点赞
+            followService.unfollow(holderId, Constants.ENTITY_TYPE_USER, userId);
+            return R.ok();
+        } else {
+            //点赞
+            // 防止用户关注自己
+            if (holderId == userId) {
+                return R.fail("不能关注自己!");
+            }
+            followService.follow(holderId, Constants.ENTITY_TYPE_USER, userId, userId);
             return R.ok();
         }
     }
