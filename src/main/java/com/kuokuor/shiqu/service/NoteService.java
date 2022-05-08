@@ -2,6 +2,7 @@ package com.kuokuor.shiqu.service;
 
 import com.kuokuor.shiqu.entity.Note;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,4 +46,17 @@ public interface NoteService {
      * @return
      */
     long getNoteCount(int type);
+
+    /**
+     * 查询指定行数据[用户id不为0就查询指定用户, 否则查询所有--先按top排序保证顶置在最前]
+     * [orderMode为1则按分数再按时间排序 为0则按时间排序 为2则只按时间排序]
+     *
+     * @param userId
+     * @param offset
+     * @param limit
+     * @param orderMode
+     * @return
+     */
+    List<Map<String, Object>> queryAllByLimit(int userId, int offset, int limit, int orderMode);
+
 }

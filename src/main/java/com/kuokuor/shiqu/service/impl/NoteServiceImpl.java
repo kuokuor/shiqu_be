@@ -1,9 +1,16 @@
 package com.kuokuor.shiqu.service.impl;
 
+import com.kuokuor.shiqu.dao.NoteDao;
+import com.kuokuor.shiqu.dao.UserDao;
 import com.kuokuor.shiqu.entity.Note;
+import com.kuokuor.shiqu.entity.User;
 import com.kuokuor.shiqu.service.NoteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +21,12 @@ import java.util.Map;
  */
 @Service
 public class NoteServiceImpl implements NoteService {
+
+    @Autowired
+    private NoteDao noteDao;
+
+    @Autowired
+    private UserDao userDao;
 
     /**
      * 新增笔记
@@ -60,5 +73,50 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public long getNoteCount(int type) {
         return 0;
+    }
+
+    /**
+     * 查询指定行数据[用户id不为0就查询指定用户, 否则查询所有--先按top排序保证顶置在最前]
+     * [orderMode为1则按分数再按时间排序 为0则按时间排序 为2则只按时间排序]
+     *
+     * @param userId
+     * @param offset
+     * @param limit
+     * @param orderMode
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> queryAllByLimit(int userId, int offset, int limit, int orderMode) {
+        // 并且此处的帖子信息已被优化, 没必要全部传输
+        List<Note> noteList = noteDao.queryAllByLimit(userId, offset, limit, orderMode);
+        if (noteList == null || noteList.size() == 0)
+            return null;
+
+        // 把帖子相关信息封装起来传输
+        List<Map<String, Object>> notes = new ArrayList<>();
+        for (Note note : noteList) {
+            Map<String, Object> map = new HashMap<>();
+
+            // note
+            Map<String, Object> noteInfo = new HashMap<>();
+            noteInfo.put("id", note.getId());
+            noteInfo.put("title", note.getTitle());
+            noteInfo.put("editTime", note.getCreateTime());
+            noteInfo.put("headerImg", note.getHeadImg());
+            // TODO: 点赞数据处理
+            noteInfo.put("likeCount", 0);
+            noteInfo.put("liked", false);
+            map.put("note", noteInfo);
+
+            // author
+            Map<String, Object> author = new HashMap<>();
+            User authorInfo = userDao.querySimpleUserById(note.getUserId());
+            author.put("avatar", authorInfo.getAvatar());
+            author.put("nickname", authorInfo.getNickname());
+            map.put("author", author);
+
+            notes.add(map);
+        }
+        return notes;
     }
 }
