@@ -48,6 +48,22 @@ spring:
   # ES配置
   elasticsearch:
     uris: http://127.0.0.1:9200
+  # Quartz配置[有默认配置, 此处进行覆盖]
+  quartz:
+    job-store-type: jdbc
+    scheduler-name: ShiQu_Scheduler
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO
+          jobStore:
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            isClustered: true
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 5
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

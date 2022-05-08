@@ -87,4 +87,9 @@ public class Constants {
      * 用户注销状态
      */
     public static final Integer USER_TYPE_DESTROY = 886;
+
+    /**
+     * Quart自动任务时间
+     */
+    public static final Integer QUARTZ_JOB_TIME = 1000 * 60 * 5; // TODO: 正式上线需要修改时间
 }
