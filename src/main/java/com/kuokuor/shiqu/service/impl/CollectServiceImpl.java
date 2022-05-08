@@ -99,6 +99,7 @@ public class CollectServiceImpl implements CollectService {
             // author
             Map<String, Object> author = new HashMap<>();
             User authorInfo = userDao.querySimpleUserById(note.getUserId());
+            author.put("id", authorInfo.getId());
             author.put("avatar", authorInfo.getAvatar());
             author.put("nickname", authorInfo.getNickname());
             map.put("author", author);
