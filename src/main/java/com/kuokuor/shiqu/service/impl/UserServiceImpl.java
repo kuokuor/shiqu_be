@@ -7,6 +7,7 @@ import com.kuokuor.shiqu.dao.UserDao;
 import com.kuokuor.shiqu.entity.User;
 import com.kuokuor.shiqu.event.Event;
 import com.kuokuor.shiqu.event.EventProducer;
+import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.RedisService;
 import com.kuokuor.shiqu.service.UserService;
 import com.kuokuor.shiqu.utils.PasswordUtil;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private FollowService followService;
 
     @Autowired
     private EventProducer eventProducer;
@@ -257,4 +263,99 @@ public class UserServiceImpl implements UserService {
         redisService.deleteObject(redisKey);
         return null;
     }
+
+    /**
+     * 查询用户信息[用于用户详情页]
+     *
+     * @param userId
+     * @param holderId 当前用户编号
+     * @return
+     */
+    @Override
+    public Map<String, Object> getUserInfoForUserPage(int userId, Integer holderId) {
+        User user = userDao.querySimpleUserById(userId);
+        if (user == null) {
+            return null;
+        }
+
+        // 构造返回数据
+        Map<String, Object> userInfo = new HashMap<>();
+        // 装入用户信息
+        userInfo.put("user", user);
+        // 装入被赞数
+        String redisKey = RedisKeyUtil.getUserLikeKey(userId);
+        Integer likeCount = redisService.getCacheObject(redisKey);
+        // 防止用户没被点赞过
+        userInfo.put("likeCount", likeCount == null ? 0 : likeCount);
+        // 装入关注用户数
+        userInfo.put("followCount", followService.queryFollowCount(userId));
+        // 装入粉丝数
+        userInfo.put("fansCount", followService.queryFansCount(userId));
+
+        if (holderId != null) {
+            // 当前用户是否关注
+            userInfo.put("followed", followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId));
+        } else {
+            // 未登录就判定为未关注
+            userInfo.put("followed", false);
+        }
+
+        return userInfo;
+    }
+
+    /**
+     * 修改用户信息
+     *
+     * @param user
+     */
+    @Override
+    public String updateUser(User user) {
+        User u = userDao.queryById(user.getId());
+        if (u == null) {
+            return "用户不存在!";
+        }
+        // 只有部分信息可以修改
+        u.setAvatar(user.getAvatar());
+        u.setNickname(user.getNickname());
+        u.setSex(user.getSex());
+        u.setDescription(user.getDescription());
+
+        userDao.update(u);
+        // 修改用户信息后要清除缓存
+        clearCache(user.getId());
+        return null;
+    }
+
+    /**
+     * 判断用户是否存在
+     *
+     * @param userId
+     * @return
+     */
+    @Override
+    public boolean exitsUser(int userId) {
+        return userDao.querySimpleUserById(userId) != null;
+    }
+
+    //使用Redis优化
+    //1.优先从缓存里查
+    private User getCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return redisService.getCacheObject(redisKey);
+    }
+
+    //2.缓存没有就初始化
+    private User initCache(int userId) {
+        User user = userDao.querySimpleUserById(userId);
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisService.setCacheObject(redisKey, user, 1L, TimeUnit.HOURS);//1小时有效
+        return user;
+    }
+
+    //3.修改后清除缓存
+    private void clearCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisService.deleteObject(redisKey);
+    }
+
 }

@@ -12,8 +12,8 @@
         <result property="content" column="content" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <!--查询单个-->
-    <select id="queryById" resultMap="MessageMap">
+    <!--查询私信列表[返回每个私信最新的一条消息]-->
+    <select id="queryConversations" resultMap="MessageMap">
         select id,
                from_id,
                to_id,
@@ -22,76 +22,88 @@
                create_time,
                content
         from message
-        where id = #{id}
+        where id in (
+            select max(id)
+            from message
+            where state != 2
+              and from_id != 0
+              and (from_id = #{userId} or to_id = #{userId})
+            group by conversation_id
+        )
+        order by id desc
     </select>
 
-    <!--统计总行数-->
-    <select id="count" resultType="java.lang.Long">
-        select count(1)
+    <!--查询私信详情[返回私信的所有数据]-->
+    <select id="queryLetters" resultMap="MessageMap">
+        select id,
+               from_id,
+               to_id,
+               conversation_id,
+               state,
+               create_time,
+               content
         from message
-        <where>
-            <if test="id != null">
-                and id = #{id}
-            </if>
-            <if test="fromId != null">
-                and from_id = #{fromId}
-            </if>
-            <if test="toId != null">
-                and to_id = #{toId}
-            </if>
-            <if test="conversationId != null and conversationId != ''">
-                and conversation_id = #{conversationId}
-            </if>
-            <if test="state != null">
-                and state = #{state}
-            </if>
-            <if test="createTime != null">
-                and create_time = #{createTime}
-            </if>
-            <if test="content != null and content != ''">
-                and content = #{content}
-            </if>
-        </where>
+        where state != 2
+          and from_id != 0
+          and conversation_id = #{conversationId}
+        order by id desc
     </select>
 
-    <!--新增所有列-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    <!--查询未读私信数量[conversationId为null时查询未读私信总数]-->
+    <select id="queryLetterUnreadCount" resultType="int">
+        select count(id)
+        from message
+        where state = 0
+        and from_id != 0
+        and to_id = #{userId}
+        <if test="conversationId!=null">
+            and conversation_id = #{conversationId}
+        </if>
+    </select>
+
+    <!--新增消息[私信和系统通知都是消息]-->
+    <insert id="insertMessage" keyProperty="id" useGeneratedKeys="true">
         insert into message(from_id, to_id, conversation_id, state, create_time, content)
         values (#{fromId}, #{toId}, #{conversationId}, #{state}, #{createTime}, #{content})
     </insert>
 
-    <!--通过主键修改数据-->
-    <update id="update">
-        update message
-        <set>
-            <if test="fromId != null">
-                from_id = #{fromId},
-            </if>
-            <if test="toId != null">
-                to_id = #{toId},
-            </if>
-            <if test="conversationId != null and conversationId != ''">
-                conversation_id = #{conversationId},
-            </if>
-            <if test="state != null">
-                state = #{state},
-            </if>
-            <if test="createTime != null">
-                create_time = #{createTime},
-            </if>
-            <if test="content != null and content != ''">
-                content = #{content},
-            </if>
-        </set>
-        where id = #{id}
-    </update>
+    <!--查询未读通知数-->
+    <select id="queryNoticeUnreadCount" resultType="int">
+        select count(id) from message
+        where state = 0
+        and from_id = 0
+        and to_id = #{userId}
+        <if test="topic!=null">
+            and conversation_id = #{topic}
+        </if>
+    </select>
 
-    <!--通过主键删除-->
-    <delete id="deleteById">
-        delete
+    <!--查询某一类型的通知详情-->
+    <select id="queryNotices" resultMap="MessageMap">
+        select id,
+               from_id,
+               to_id,
+               conversation_id,
+               state,
+               create_time,
+               content
         from message
-        where id = #{id}
-    </delete>
+        where state != 2
+          and from_id = 0
+          and to_id = #{userId}
+          and conversation_id = #{topic}
+        order by create_time desc
+    </select>
+
+    <!--修改状态-->
+    <update id="updateState">
+        update message
+        set state=#{state}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
 </mapper>
 

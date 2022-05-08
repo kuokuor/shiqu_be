@@ -3,6 +3,8 @@ package com.kuokuor.shiqu.dao;
 import com.kuokuor.shiqu.entity.Message;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 消息表(Message)表数据库访问层
  *
@@ -13,44 +15,63 @@ import org.apache.ibatis.annotations.Mapper;
 public interface MessageDao {
 
     /**
-     * 通过ID查询单条数据
+     * 查询私信列表[返回每个私信最新的一条消息]
      *
-     * @param id 主键
-     * @return 实例对象
+     * @param userId
+     * @return
      */
-    Message queryById(Integer id);
+    List<Message> queryConversations(int userId);
 
     /**
-     * 统计总行数
+     * 查询私信详情[返回私信的所有数据]
      *
-     * @param message 查询条件
-     * @return 总行数
+     * @param conversationId
+     * @return
      */
-    long count(Message message);
+    List<Message> queryLetters(String conversationId);
 
     /**
-     * 新增数据
+     * 查询未读私信数量[conversationId为null时查询未读私信总数]
      *
-     * @param message 实例对象
-     * @return 影响行数
+     * @param userId
+     * @param conversationId
+     * @return
      */
-    int insert(Message message);
+    int queryLetterUnreadCount(int userId, String conversationId);
 
     /**
-     * 修改数据
+     * 新增消息[私信和系统通知都是消息]
      *
-     * @param message 实例对象
-     * @return 影响行数
+     * @param message
+     * @return
      */
-    int update(Message message);
+    int insertMessage(Message message);
 
     /**
-     * 通过主键删除数据
+     * 查询未读通知数
      *
-     * @param id 主键
-     * @return 影响行数
+     * @param userId
+     * @param topic
+     * @return
      */
-    int deleteById(Integer id);
+    int queryNoticeUnreadCount(int userId, String topic);
 
+    /**
+     * 查询某一类型的通知详情
+     *
+     * @param userId
+     * @param topic
+     * @return
+     */
+    List<Message> queryNotices(int userId, String topic);
+
+    /**
+     * 修改状态
+     *
+     * @param ids
+     * @param state
+     * @return
+     */
+    int updateState(List<Integer> ids, int state);
 }
 

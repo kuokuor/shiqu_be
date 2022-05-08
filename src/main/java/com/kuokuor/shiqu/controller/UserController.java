@@ -2,13 +2,18 @@ package com.kuokuor.shiqu.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
+import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
+import com.kuokuor.shiqu.entity.User;
+import com.kuokuor.shiqu.service.CollectService;
+import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Controller
@@ -16,12 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: GreatBiscuit
  * @Date: 2022/4/9 17:28
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FollowService followService;
+
+    @Autowired
+    private CollectService collectService;
 
     /**
      * 登录
@@ -111,5 +123,129 @@ public class UserController {
         String msg = userService.resetPass(email, password, code);
         return msg == null ? R.ok() : R.fail(msg);
     }
+
+    /**
+     * 查询用户信息[用于用户详情页]
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getUserInfo")
+    public R getUserInfo(int userId) {
+        Object data = userService.getUserInfoForUserPage(userId,
+                StpUtil.isLogin() == true ? StpUtil.getLoginIdAsInt() : null);
+        return data == null ? R.fail("该用户不存在") : R.ok(data);
+    }
+
+    @SaCheckLogin
+    @PostMapping("/updateUserInfo")
+    public R updateUserInfo(User user) {
+        if (user == null) return R.fail("未获取到用户信息!");
+        // 基础处理
+        if (user.getNickname().length() > 15) return R.fail("昵称过长!");
+        if (user.getSex() < 0 || user.getSex() > 2) return R.fail("请选择正确的性别类型!");
+        // 将nickname Description
+        user.setNickname(HtmlUtils.htmlEscape(user.getNickname()));
+        user.setDescription(HtmlUtils.htmlEscape(user.getDescription()));
+        // 设置用户编号
+        user.setId(StpUtil.getLoginIdAsInt());
+        String msg = userService.updateUser(user);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    /**
+     * 查询当前用户Id[不存在则返回空]
+     *
+     * @return
+     */
+    @RequestMapping("/getHolderUserId")
+    public R getHolderUserId() {
+        if (StpUtil.isLogin()) {
+            // 如果已经登录
+            return R.ok(StpUtil.getLoginIdAsInt());
+        } else {
+            // 如果未登录
+            return R.ok();
+        }
+    }
+
+    // ----------------------------以上为用户信息相关操作----------------------------
+
+    /**
+     * 关注 取消关注
+     *
+     * @param userId
+     * @return
+     */
+    @SaCheckLogin
+    @PostMapping("/changeFollowed")
+    public R changeFollowed(int userId) {
+        if (!userService.exitsUser(userId)) {
+            return R.fail("用户不存在!");
+        }
+        int holderId = StpUtil.getLoginIdAsInt();
+        // 是否以及关注
+        boolean hasFollow = followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId);
+        if (hasFollow) {
+            // 取消关注
+            followService.unfollow(holderId, Constants.ENTITY_TYPE_USER, userId);
+        } else {
+            // 关注
+            // 防止用户关注自己
+            if (holderId == userId) {
+                return R.fail("不能关注自己!");
+            }
+            followService.follow(holderId, Constants.ENTITY_TYPE_USER, userId, userId);
+        }
+        return R.ok();
+    }
+
+    /**
+     * 获取用户关注其他用户的列表
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getFollowList")
+    public R getFollowList(int userId) {
+        // 看当前有没有用户登录[登录就给用户Id赋值]
+        Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
+        // 不管是用户不存在还是未关注任何用户都会返回null
+        List<Map<String, Object>> followeeInfo = followService.queryFolloweeList(holderId, userId, 0, Integer.MAX_VALUE);
+        // 将数据返回[没有数据则为空]
+        return R.ok(followeeInfo);
+    }
+
+    /**
+     * 获取用户的粉丝列表
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getFansList")
+    public R getFansList(int userId) {
+        // 看当前有没有用户登录[登录就给用户Id赋值]
+        Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
+        // 不管是用户不存在还是未关注任何用户都会返回null
+        List<Map<String, Object>> fansInfo = followService.queryFansList(holderId, userId, 0, Integer.MAX_VALUE);
+        // 将数据返回[没有数据则为空]
+        return R.ok(fansInfo);
+    }
+
+    /**
+     * 获取用户收藏的帖子列表
+     *
+     * @param userId
+     * @param offset
+     * @param limit
+     * @return
+     */
+    @GetMapping("/getCollectedNoteList")
+    public R getCollectedNoteList(int userId, int offset, int limit) {
+        List<Map<String, Object>> collectedPostList = collectService.getCollectedPostList(userId, offset, limit);
+        return R.ok(collectedPostList);
+    }
+
+    // ----------------------------以上为关注相关操作----------------------------
 
 }
