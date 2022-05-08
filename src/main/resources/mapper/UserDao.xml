@@ -95,5 +95,18 @@
         where id = #{id}
     </delete>
 
+    <select id="querySimpleUserById" resultMap="UserMap">
+        select id,
+               email,
+               avatar,
+               nickname,
+               sex,
+               description,
+               type,
+               create_time
+        from user
+        where id = #{id}
+    </select>
+
 </mapper>
 

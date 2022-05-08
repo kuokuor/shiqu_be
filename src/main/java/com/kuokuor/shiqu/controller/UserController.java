@@ -5,10 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.domain.R;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户Controller
@@ -16,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Author: GreatBiscuit
  * @Date: 2022/4/9 17:28
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {

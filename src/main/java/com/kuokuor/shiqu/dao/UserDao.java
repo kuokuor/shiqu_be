@@ -52,5 +52,12 @@ public interface UserDao {
      */
     int deleteById(Integer id);
 
+    /**
+     * 查询出简略的用户信息
+     *
+     * @param id
+     * @return
+     */
+    User querySimpleUserById(Integer id);
 }
 
