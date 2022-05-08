@@ -141,4 +141,20 @@ public class UserController {
         return msg == null ? R.ok() : R.fail(msg);
     }
 
+    /**
+     * 查询当前用户Id[不存在则返回空]
+     *
+     * @return
+     */
+    @RequestMapping("/getHolderUserId")
+    public R getHolderUserId() {
+        if (StpUtil.isLogin()) {
+            // 如果已经登录
+            return R.ok(StpUtil.getLoginIdAsInt());
+        } else {
+            // 如果未登录
+            return R.ok();
+        }
+    }
+
 }
