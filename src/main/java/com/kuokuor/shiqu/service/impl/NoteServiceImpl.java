@@ -292,7 +292,7 @@ public class NoteServiceImpl implements NoteService {
             boolean liked = false;
             // 如果当前有用户登录且点赞了
             if (StpUtil.isLogin()) {
-                likeService.userHasLike(StpUtil.getLoginIdAsInt(), Constants.ENTITY_TYPE_NOTE, note.getId());
+                liked = likeService.userHasLike(StpUtil.getLoginIdAsInt(), Constants.ENTITY_TYPE_NOTE, note.getId());
             }
             noteInfo.put("liked", liked);
             map.put("note", noteInfo);

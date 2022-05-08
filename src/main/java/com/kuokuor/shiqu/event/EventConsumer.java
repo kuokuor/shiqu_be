@@ -3,7 +3,10 @@ package com.kuokuor.shiqu.event;
 import com.alibaba.fastjson.JSONObject;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.dao.MessageDao;
+import com.kuokuor.shiqu.dao.NoteDao;
 import com.kuokuor.shiqu.entity.Message;
+import com.kuokuor.shiqu.entity.Note;
+import com.kuokuor.shiqu.service.SearchService;
 import com.kuokuor.shiqu.utils.EmailUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,12 @@ public class EventConsumer {
 
     @Autowired
     private MessageDao messageDao;
+
+    @Autowired
+    private NoteDao noteDao;
+
+    @Autowired
+    private SearchService searchService;
 
     /**
      * 消费发送邮件事件
@@ -112,5 +121,45 @@ public class EventConsumer {
         //存入
         messageDao.insertMessage(message);
     }
+
+    //消费发帖事件
+    @KafkaListener(topics = {Constants.TOPIC_PUBLISH})
+    public void handlePublishMessage(ConsumerRecord record) {
+        // 消息内容为空
+        if (record == null || record.value() == null) {
+            return;
+        }
+
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        // 消息格式错误
+        if (event == null) {
+            return;
+        }
+
+        Note note = noteDao.queryById(event.getEntityId());
+
+        // 存入es
+        searchService.saveNote(note);
+
+    }
+
+    //消费删帖事件
+    @KafkaListener(topics = {Constants.TOPIC_DELETE})
+    public void handleDeleteMessage(ConsumerRecord record) {
+        // 消息内容为空
+        if (record == null || record.value() == null) {
+            return;
+        }
+
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        // 消息格式错误
+        if (event == null) {
+            return;
+        }
+
+        // 从es中删除数据
+        searchService.deleteNote(event.getEntityId());
+    }
+
 
 }

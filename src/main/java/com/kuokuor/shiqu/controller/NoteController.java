@@ -8,6 +8,7 @@ import com.kuokuor.shiqu.entity.Note;
 import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.LikeService;
 import com.kuokuor.shiqu.service.NoteService;
+import com.kuokuor.shiqu.service.SearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,9 @@ public class NoteController {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    private SearchService searchService;
 
     /**
      * 查询帖子列表
@@ -146,6 +150,20 @@ public class NoteController {
             followService.follow(holderId, Constants.ENTITY_TYPE_NOTE, noteId, note.getUserId());
         }
         return R.ok();
+    }
+
+    /**
+     * 搜索
+     *
+     * @param keyword 关键字
+     * @param type    指定类型
+     * @param current 当前页[从0开始]
+     * @param limit   记录数
+     * @return
+     */
+    @GetMapping("/search")
+    public R search(String keyword, Integer type, int current, int limit) {
+        return R.ok(searchService.searchPostList(keyword, current, limit, type));
     }
 
 }
