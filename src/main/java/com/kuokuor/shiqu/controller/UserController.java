@@ -110,4 +110,17 @@ public class UserController {
         return msg == null ? R.ok() : R.fail(msg);
     }
 
+    /**
+     * 查询用户信息[用于用户详情页]
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getUserInfo")
+    public R getUserInfo(int userId) {
+        Object data = userService.getUserInfoForUserPage(userId,
+                StpUtil.isLogin() == true ? StpUtil.getLoginIdAsInt() : null);
+        return data == null ? R.fail("该用户不存在") : R.ok(data);
+    }
+
 }

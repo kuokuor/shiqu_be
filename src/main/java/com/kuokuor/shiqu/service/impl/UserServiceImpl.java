@@ -7,6 +7,7 @@ import com.kuokuor.shiqu.dao.UserDao;
 import com.kuokuor.shiqu.entity.User;
 import com.kuokuor.shiqu.event.Event;
 import com.kuokuor.shiqu.event.EventProducer;
+import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.RedisService;
 import com.kuokuor.shiqu.service.UserService;
 import com.kuokuor.shiqu.utils.PasswordUtil;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +36,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private FollowService followService;
 
     @Autowired
     private EventProducer eventProducer;
@@ -256,5 +262,44 @@ public class UserServiceImpl implements UserService {
         // 在Redis里清除验证码
         redisService.deleteObject(redisKey);
         return null;
+    }
+
+    /**
+     * 查询用户信息[用于用户详情页]
+     *
+     * @param userId
+     * @param holderId 当前用户编号
+     * @return
+     */
+    @Override
+    public Map<String, Object> getUserInfoForUserPage(int userId, Integer holderId) {
+        User user = userDao.querySimpleUserById(userId);
+        if (user == null) {
+            return null;
+        }
+
+        // 构造返回数据
+        Map<String, Object> userInfo = new HashMap<>();
+        // 装入用户信息
+        userInfo.put("user", user);
+        // 装入被赞数
+        String redisKey = RedisKeyUtil.getUserLikeKey(userId);
+        Integer likeCount = redisService.getCacheObject(redisKey);
+        // 防止用户没被点赞过
+        userInfo.put("likeCount", likeCount == null ? 0 : likeCount);
+        // 装入关注用户数
+        userInfo.put("followCount", followService.queryFollowCount(userId));
+        // 装入粉丝数
+        userInfo.put("fansCount", followService.queryFansCount(userId));
+
+        if (holderId != null) {
+            // 当前用户是否关注
+            userInfo.put("followed", followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, userId));
+        } else {
+            // 未登录就判定为未关注
+            userInfo.put("followed", false);
+        }
+
+        return userInfo;
     }
 }

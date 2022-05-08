@@ -2,6 +2,8 @@ package com.kuokuor.shiqu.service;
 
 import com.kuokuor.shiqu.entity.User;
 
+import java.util.Map;
+
 /**
  * 用户业务层接口
  *
@@ -63,4 +65,13 @@ public interface UserService {
      * @return
      */
     String resetPass(String email, String password, String code);
+
+    /**
+     * 查询用户信息[用于用户详情页]
+     *
+     * @param userId
+     * @param holderId 当前用户编号
+     * @return
+     */
+    Map<String, Object> getUserInfoForUserPage(int userId, Integer holderId);
 }
