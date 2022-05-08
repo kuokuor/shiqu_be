@@ -129,5 +129,25 @@
         limit #{offset}, #{limit}
     </select>
 
+    <!--查询用户的关注的笔记列表-->
+    <select id="queryFolloweeNotes" resultMap="NoteMap">
+        select
+        id,
+        user_id,
+        title,
+        type,
+        content,
+        create_time,
+        score,
+        head_img
+        from note
+        where 1 = 0
+        <foreach collection="ids" item="id" separator=",">
+            or user_id = #{id}
+        </foreach>
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
 </mapper>
 

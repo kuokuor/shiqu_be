@@ -11,12 +11,10 @@ import com.kuokuor.shiqu.event.EventProducer;
 import com.kuokuor.shiqu.service.*;
 import com.kuokuor.shiqu.utils.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 笔记业务层
@@ -56,6 +54,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增笔记
@@ -362,5 +363,59 @@ public class NoteServiceImpl implements NoteService {
             notes.add(map);
         }
         return notes;
+    }
+
+    /**
+     * 查询用户的关注的笔记
+     *
+     * @param holderId
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> queryFolloweeNotes(int holderId, int offset, int limit) {
+        // 查出关注的人的Id
+        String redisKey = RedisKeyUtil.getFolloweeKey(holderId, Constants.ENTITY_TYPE_USER);
+        // 按分数从小到大返回set中的值, 也就是按时间从近到远
+        Set<Integer> followeeIdSet = redisTemplate.opsForZSet()
+                .reverseRange(redisKey, 0, Integer.MAX_VALUE);
+        // 如果用户没有关注过任何人就会返回空
+        if (followeeIdSet == null)
+            return null;
+
+        List<Note> list = noteDao.queryFolloweeNotes(offset, limit, followeeIdSet);
+
+        // 把帖子相关信息封装起来传输
+        List<Map<String, Object>> notes = new ArrayList<>();
+        for (Note note : list) {
+            Map<String, Object> map = new HashMap<>();
+
+            // note
+            Map<String, Object> noteInfo = new HashMap<>();
+            noteInfo.put("id", note.getId());
+            noteInfo.put("title", note.getTitle());
+            noteInfo.put("editTime", note.getCreateTime());
+            noteInfo.put("headerImg", note.getHeadImg());
+            // 点赞数据处理
+            noteInfo.put("likeCount", likeService.findEntityLikeCount(Constants.ENTITY_TYPE_NOTE, note.getId()));
+            boolean liked = false;
+            // 如果当前有用户登录且点赞了
+            if (StpUtil.isLogin()) {
+                liked = likeService.userHasLike(StpUtil.getLoginIdAsInt(), Constants.ENTITY_TYPE_NOTE, note.getId());
+            }
+            noteInfo.put("liked", liked);
+            map.put("note", noteInfo);
+
+            // author
+            Map<String, Object> author = new HashMap<>();
+            User authorInfo = userDao.querySimpleUserById(note.getUserId());
+            author.put("id", authorInfo.getId());
+            author.put("avatar", authorInfo.getAvatar());
+            author.put("nickname", authorInfo.getNickname());
+            map.put("author", author);
+
+            notes.add(map);
+        }
+        return notes;
+
     }
 }

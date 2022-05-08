@@ -76,4 +76,14 @@ public interface NoteService {
      */
     List<Map<String, Object>> classify(int tag);
 
+    /**
+     * 查询用户的关注的笔记
+     *
+     * @param holderId
+     * @param offset
+     * @param limit
+     * @return
+     */
+    List<Map<String, Object>> queryFolloweeNotes(int holderId, int offset, int limit);
+
 }

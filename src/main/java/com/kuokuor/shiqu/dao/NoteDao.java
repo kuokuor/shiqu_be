@@ -2,8 +2,10 @@ package com.kuokuor.shiqu.dao;
 
 import com.kuokuor.shiqu.entity.Note;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * (Note)表数据库访问层
@@ -66,5 +68,15 @@ public interface NoteDao {
      * @return
      */
     List<Note> queryAllByLimit(int userId, int offset, int limit, int orderMode);
+
+    /**
+     * 查询用户的关注的笔记列表
+     *
+     * @param offset
+     * @param limit
+     * @param ids    关注的Id
+     * @return
+     */
+    List<Note> queryFolloweeNotes(int offset, int limit, @Param("ids") Set<Integer> ids);
 }
 
