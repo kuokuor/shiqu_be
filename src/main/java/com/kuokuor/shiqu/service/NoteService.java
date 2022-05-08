@@ -17,9 +17,10 @@ public interface NoteService {
      *
      * @param note   笔记对象
      * @param images 图片组
+     * @param tags   标签组
      * @return
      */
-    String insertNote(Note note, String[] images);
+    String insertNote(Note note, String[] images, int[] tags);
 
     /**
      * 删除笔记

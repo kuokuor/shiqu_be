@@ -101,5 +101,22 @@
         where id = #{id}
     </delete>
 
+    <!--查询实体的评论-->
+    <select id="queryCommentsByEntity" resultMap="CommentMap">
+        select id,
+               user_id,
+               entity_type,
+               entity_id,
+               target_id,
+               content,
+               state,
+               create_time
+        from comment
+        where state = 0
+          and entity_type = #{entityType}
+          and entity_id = #{entityId}
+        order by create_time asc
+    </select>
+
 </mapper>
 

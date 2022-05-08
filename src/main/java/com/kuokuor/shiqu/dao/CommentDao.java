@@ -3,6 +3,8 @@ package com.kuokuor.shiqu.dao;
 import com.kuokuor.shiqu.entity.Comment;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 评论表(Comment)表数据库访问层
  *
@@ -52,5 +54,13 @@ public interface CommentDao {
      */
     int deleteById(Integer id);
 
+    /**
+     * 查询出实体的评论
+     *
+     * @param entityType
+     * @param entityId
+     * @return
+     */
+    List<Comment> queryCommentsByEntity(Integer entityType, Integer entityId);
 }
 

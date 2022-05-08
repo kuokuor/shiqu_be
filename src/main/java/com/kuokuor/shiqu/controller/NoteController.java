@@ -5,15 +5,16 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
 import com.kuokuor.shiqu.entity.Note;
-import com.kuokuor.shiqu.service.CollectService;
 import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.LikeService;
 import com.kuokuor.shiqu.service.NoteService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 笔记控制层
@@ -34,9 +35,6 @@ public class NoteController {
     @Autowired
     private FollowService followService;
 
-    @Autowired
-    private CollectService collectService;
-
     /**
      * 查询帖子列表
      *
@@ -55,6 +53,57 @@ public class NoteController {
             return R.ok(noteService.queryAllByLimit(userId, offset, limit, index - 1));
         }
     }
+
+    @GetMapping("/getNoteDetail/{noteId}")
+    public R getNoteDetail(@PathVariable("noteId") int noteId) {
+        // 得到当前用户的ID
+        Integer userId = null;
+        if (StpUtil.isLogin()) {
+            userId = StpUtil.getLoginIdAsInt();
+        }
+
+        Map<String, Object> postDetail = noteService.queryNoteDetailById(noteId, userId);
+        if (postDetail == null) {
+            R.fail("查询帖子信息出现错误!");
+        }
+
+        // 如果当前用户已登录则将用户的ID也返回, 用于前端处理
+        return userId == null ? R.ok(postDetail) : R.ok(postDetail, userId.toString());
+    }
+
+    @SaCheckLogin
+    @PostMapping("/createNote")
+    public R createNote(String title, String content, int type, int[] tags, String[] photoList) {
+        if (StringUtils.isBlank(title) || StringUtils.isBlank(content) || type < 0 || type > 1 || photoList.length == 0) {
+            return R.fail("请检查各项数据!");
+        }
+        Note note = new Note();
+        // 进行HTML转义, 防止用户恶意攻击
+        note.setTitle(HtmlUtils.htmlEscape(title));
+        note.setContent(HtmlUtils.htmlEscape(content));
+        note.setType(type);
+        note.setUserId(StpUtil.getLoginIdAsInt());
+        note.setCreateTime(new Date());
+        note.setHeadImg(photoList[0]);
+        note.setScore(0D);
+
+        String msg = noteService.insertNote(note, photoList, tags);
+        return msg == null ? R.ok("发布成功!") : R.fail(msg);
+    }
+
+    /**
+     * 删除帖子
+     *
+     * @param noteId
+     * @return
+     */
+    @SaCheckLogin
+    @PostMapping("/deleteNote")
+    public R deletePost(int noteId) {
+        String msg = noteService.deleteNote(StpUtil.getLoginIdAsInt(), noteId);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
 
     /**
      * 点赞[取消点赞也是调用该方法, 在业务层进行判断]
