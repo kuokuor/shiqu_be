@@ -1,9 +1,12 @@
 package com.kuokuor.shiqu.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
+import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.dao.NoteDao;
 import com.kuokuor.shiqu.dao.UserDao;
 import com.kuokuor.shiqu.entity.Note;
 import com.kuokuor.shiqu.entity.User;
+import com.kuokuor.shiqu.service.LikeService;
 import com.kuokuor.shiqu.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private LikeService likeService;
 
     /**
      * 新增笔记
@@ -103,9 +109,14 @@ public class NoteServiceImpl implements NoteService {
             noteInfo.put("title", note.getTitle());
             noteInfo.put("editTime", note.getCreateTime());
             noteInfo.put("headerImg", note.getHeadImg());
-            // TODO: 点赞数据处理
-            noteInfo.put("likeCount", 0);
-            noteInfo.put("liked", false);
+            // 点赞数据处理
+            noteInfo.put("likeCount", likeService.findEntityLikeCount(Constants.ENTITY_TYPE_NOTE, note.getId()));
+            boolean liked = false;
+            // 如果当前有用户登录且点赞了
+            if (StpUtil.isLogin()) {
+                likeService.userHasLike(StpUtil.getLoginIdAsInt(), Constants.ENTITY_TYPE_NOTE, note.getId());
+            }
+            noteInfo.put("liked", liked);
             map.put("note", noteInfo);
 
             // author
