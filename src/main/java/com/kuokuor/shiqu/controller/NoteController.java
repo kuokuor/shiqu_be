@@ -51,9 +51,9 @@ public class NoteController {
      */
     @GetMapping("/getNoteList")
     public R getNoteList(int index, int limit, int offset, Integer userId) {
-        // 如果当前用户未登录就变为查询整个系统中最新的帖子
+        // 如果当前用户未登录就返回空
         if (!StpUtil.isLogin()) {
-            index = 2;
+            return R.ok();
         }
         if (index == 0) {
             return R.ok(noteService.queryFolloweeNotes(StpUtil.getLoginIdAsInt(), offset, limit));
