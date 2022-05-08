@@ -5,11 +5,15 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
 import com.kuokuor.shiqu.entity.User;
+import com.kuokuor.shiqu.service.CollectService;
 import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Controller
@@ -27,6 +31,9 @@ public class UserController {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    private CollectService collectService;
 
     /**
      * 登录
@@ -164,6 +171,12 @@ public class UserController {
 
     // ----------------------------以上为用户信息相关操作----------------------------
 
+    /**
+     * 关注 取消关注
+     *
+     * @param userId
+     * @return
+     */
     @SaCheckLogin
     @PostMapping("/changeFollowed")
     public R changeFollowed(int userId) {
@@ -186,5 +199,53 @@ public class UserController {
             return R.ok();
         }
     }
+
+    /**
+     * 获取用户关注其他用户的列表
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getFollowList")
+    public R getFollowList(int userId) {
+        // 看当前有没有用户登录[登录就给用户Id赋值]
+        Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
+        // 不管是用户不存在还是未关注任何用户都会返回null
+        List<Map<String, Object>> followeeInfo = followService.queryFolloweeList(holderId, userId, 0, Integer.MAX_VALUE);
+        // 将数据返回[没有数据则为空]
+        return R.ok(followeeInfo);
+    }
+
+    /**
+     * 获取用户的粉丝列表
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getFansList")
+    public R getFansList(int userId) {
+        // 看当前有没有用户登录[登录就给用户Id赋值]
+        Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
+        // 不管是用户不存在还是未关注任何用户都会返回null
+        List<Map<String, Object>> fansInfo = followService.queryFansList(holderId, userId, 0, Integer.MAX_VALUE);
+        // 将数据返回[没有数据则为空]
+        return R.ok(fansInfo);
+    }
+
+    /**
+     * 获取用户收藏的帖子列表
+     *
+     * @param userId
+     * @param offset
+     * @param limit
+     * @return
+     */
+    @GetMapping("/getCollectedNoteList")
+    public R getCollectedNoteList(int userId, int offset, int limit) {
+        List<Map<String, Object>> collectedPostList = collectService.getCollectedPostList(userId, offset, limit);
+        return R.ok(collectedPostList);
+    }
+
+    // ----------------------------以上为关注相关操作----------------------------
 
 }
