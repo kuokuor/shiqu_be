@@ -48,7 +48,7 @@ public class MessageController {
      * @return
      */
     @SaCheckLogin
-    @GetMapping("/getChatList")
+    @PostMapping("/getChatList")
     public R getChatList(int targetId) {
         int holderUserId = StpUtil.getLoginIdAsInt();
         // 组合出conversationId

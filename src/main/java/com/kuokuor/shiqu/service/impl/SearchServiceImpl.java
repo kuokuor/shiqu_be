@@ -98,7 +98,7 @@ public class SearchServiceImpl implements SearchService {
 
         // 处理查询结果
         if (searchHits.isEmpty()) {
-            return null;
+            return new ArrayList<>();
         }
 
         // 把帖子相关信息封装起来传输

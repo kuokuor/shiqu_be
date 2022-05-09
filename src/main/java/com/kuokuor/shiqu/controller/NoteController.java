@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
@@ -46,16 +47,16 @@ public class NoteController {
      * @param index  0表示关注，1表示热门，2表示最新
      * @param limit
      * @param offset
-     * @param userId 为空时查询所有用户
+     * @param userId 为0时查询所有用户
      * @return
      */
-    @GetMapping("/getNoteList")
+    @PostMapping("/getNoteList")
     public R getNoteList(int index, int limit, int offset, Integer userId) {
-        // 如果当前用户未登录就返回空
-        if (!StpUtil.isLogin()) {
-            return R.ok();
-        }
         if (index == 0) {
+            // 如果当前用户未登录就返回空
+            if (!StpUtil.isLogin()) {
+                return R.ok(new ArrayList<>());
+            }
             return R.ok(noteService.queryFolloweeNotes(StpUtil.getLoginIdAsInt(), offset, limit));
         } else {
             return R.ok(noteService.queryAllByLimit(userId, offset, limit, index - 1));
@@ -160,13 +161,15 @@ public class NoteController {
      * 搜索
      *
      * @param keyword 关键字
-     * @param type    指定类型
+     * @param type    指定类型 0全部 1美食 2探店
      * @param current 当前页[从0开始]
      * @param limit   记录数
      * @return
      */
-    @GetMapping("/search")
+    @PostMapping("/search")
     public R search(String keyword, Integer type, int current, int limit) {
+        type--;
+        if (type == -1) type = null;
         return R.ok(searchService.searchPostList(keyword, current, limit, type));
     }
 
@@ -192,7 +195,7 @@ public class NoteController {
      * @param tag
      * @return
      */
-    @GetMapping("/classify")
+    @PostMapping("/classify")
     public R classify(int tag) {
         return R.ok(noteService.classify(tag));
     }

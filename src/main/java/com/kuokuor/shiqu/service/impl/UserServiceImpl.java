@@ -1,7 +1,5 @@
 package com.kuokuor.shiqu.service.impl;
 
-import cn.dev33.satoken.stp.SaLoginModel;
-import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.dao.UserDao;
 import com.kuokuor.shiqu.entity.User;
@@ -46,13 +44,12 @@ public class UserServiceImpl implements UserService {
     /**
      * 登录
      *
-     * @param email      邮箱[作为账号]
-     * @param password   密码
-     * @param rememberMe 记住我
+     * @param email    邮箱[作为账号]
+     * @param password 密码
      * @return
      */
     @Override
-    public String login(String email, String password, boolean rememberMe) {
+    public String login(String email, String password) {
 
         //空值处理
         if (StringUtils.isBlank(email)) {
@@ -81,15 +78,8 @@ public class UserServiceImpl implements UserService {
             return "密码错误!";
         }
 
-        // 正常登录
-        if (rememberMe) {
-            // 记住我
-            StpUtil.login(user.getId(), new SaLoginModel().setTimeout(Constants.REMEMBER_ME));
-        } else {
-            // 不记住我[关闭浏览器则退出登录]
-            StpUtil.login(user.getId(), false);
-        }
-        return null;
+        //成功登录, 返回用户ID用于登录状态标记
+        return "ID:" + user.getId();
     }
 
     /**

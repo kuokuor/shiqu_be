@@ -82,6 +82,8 @@ public class MessageServiceImpl implements MessageService {
         map.put("target", target);
         map.put("holder", userDao.querySimpleUserById(userId));
         List<Message> letterList = messageDao.queryLetters(conversationId);
+        // 翻转List
+        Collections.reverse(letterList);
         map.put("letterList", letterList);
         // 将私信设为已读
         readMessage(letterList, userId);

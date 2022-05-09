@@ -15,12 +15,11 @@ public interface UserService {
     /**
      * 登录
      *
-     * @param email      邮箱[作为账号]
-     * @param password   密码
-     * @param rememberMe 记住我
+     * @param email    邮箱[作为账号]
+     * @param password 密码
      * @return
      */
-    String login(String email, String password, boolean rememberMe);
+    String login(String email, String password);
 
     /**
      * 得到当前用户信息

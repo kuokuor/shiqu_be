@@ -1,6 +1,7 @@
 package com.kuokuor.shiqu.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import com.kuokuor.shiqu.commom.constant.Constants;
 import com.kuokuor.shiqu.commom.domain.R;
@@ -9,7 +10,10 @@ import com.kuokuor.shiqu.service.CollectService;
 import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
@@ -21,7 +25,6 @@ import java.util.Map;
  * @Author: GreatBiscuit
  * @Date: 2022/4/9 17:28
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -45,19 +48,24 @@ public class UserController {
      */
     @PostMapping("/login")
     public R login(String email, String password, boolean rememberMe) {
-        String msg = userService.login(email, password, rememberMe);
-        return msg == null ? R.ok("成功登录") : R.fail(msg);
-    }
+        String message = userService.login(email, password);
 
-    /**
-     * 得到当前用户信息
-     *
-     * @return
-     */
-    @SaCheckLogin   // 已登录才能访问该方法
-    @GetMapping("/getHolderInfo")
-    public R getHolderInfo() {
-        return R.ok(userService.getHolderInfo(StpUtil.getLoginIdAsInt()));
+        //如果map中只存在用户ID一个数据，说明是成功登录
+        if (message.startsWith("ID:")) {
+            //转换为用户ID
+            int userId = Integer.parseInt(message.substring(3));
+            //将用户登录状态进行改变
+            //选择记住我则登录状态保持一周, 否则仅本次有效
+            if (rememberMe) {
+                StpUtil.login(userId, new SaLoginModel().setTimeout(Constants.REMEMBER_ME));
+            } else {
+                StpUtil.login(userId, false);
+            }
+            return R.ok();
+        } else {
+            //否则就是登录失败
+            return R.fail(message);
+        }
     }
 
     /**
@@ -130,10 +138,10 @@ public class UserController {
      * @param userId
      * @return
      */
-    @GetMapping("/getUserInfo")
+    @PostMapping("/getUserInfo")
     public R getUserInfo(int userId) {
         Object data = userService.getUserInfoForUserPage(userId,
-                StpUtil.isLogin() == true ? StpUtil.getLoginIdAsInt() : null);
+                StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null);
         return data == null ? R.fail("该用户不存在") : R.ok(data);
     }
 
@@ -154,19 +162,24 @@ public class UserController {
     }
 
     /**
+     * 得到当前用户信息
+     *
+     * @return
+     */
+    @SaCheckLogin   // 已登录才能访问该方法
+    @GetMapping("/getHolderInfo")
+    public R getHolderInfo() {
+        return R.ok(userService.getHolderInfo(StpUtil.getLoginIdAsInt()));
+    }
+
+    /**
      * 查询当前用户Id[不存在则返回空]
      *
      * @return
      */
-    @RequestMapping("/getHolderUserId")
+    @GetMapping("/getHolderUserId")
     public R getHolderUserId() {
-        if (StpUtil.isLogin()) {
-            // 如果已经登录
-            return R.ok(StpUtil.getLoginIdAsInt());
-        } else {
-            // 如果未登录
-            return R.ok();
-        }
+        return R.ok(StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null);
     }
 
     // ----------------------------以上为用户信息相关操作----------------------------
@@ -206,7 +219,7 @@ public class UserController {
      * @param userId
      * @return
      */
-    @GetMapping("/getFollowList")
+    @PostMapping("/getFollowList")
     public R getFollowList(int userId) {
         // 看当前有没有用户登录[登录就给用户Id赋值]
         Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
@@ -222,7 +235,7 @@ public class UserController {
      * @param userId
      * @return
      */
-    @GetMapping("/getFansList")
+    @PostMapping("/getFansList")
     public R getFansList(int userId) {
         // 看当前有没有用户登录[登录就给用户Id赋值]
         Integer holderId = StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null;
@@ -240,7 +253,7 @@ public class UserController {
      * @param limit
      * @return
      */
-    @GetMapping("/getCollectedNoteList")
+    @PostMapping("/getCollectedNoteList")
     public R getCollectedNoteList(int userId, int offset, int limit) {
         List<Map<String, Object>> collectedPostList = collectService.getCollectedPostList(userId, offset, limit);
         return R.ok(collectedPostList);

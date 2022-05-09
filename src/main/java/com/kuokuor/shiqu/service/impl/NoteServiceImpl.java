@@ -168,7 +168,8 @@ public class NoteServiceImpl implements NoteService {
         author.put("nickname", noteAuthor.getNickname());
         author.put("avatar", noteAuthor.getAvatar());
         // 当前用户是否关注这一用户
-        author.put("followed", followService.hasFollowed(holderUserId, Constants.ENTITY_TYPE_USER, noteAuthor.getId()));
+        author.put("followed", holderUserId != null
+                && followService.hasFollowed(holderUserId, Constants.ENTITY_TYPE_USER, noteAuthor.getId()));
         noteDetail.put("author", author);
 
         // --------------------------------comments--------------------------------
@@ -262,7 +263,7 @@ public class NoteServiceImpl implements NoteService {
 
     /**
      * 查询指定行数据[用户id不为0就查询指定用户, 否则查询所有--先按top排序保证顶置在最前]
-     * [orderMode为1则按分数再按时间排序 为0则按时间排序 为2则只按时间排序]
+     * [orderMode为0则按分数再按时间排序 为1则按时间排序]
      *
      * @param userId
      * @param offset
