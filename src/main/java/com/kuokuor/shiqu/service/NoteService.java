@@ -86,4 +86,22 @@ public interface NoteService {
      */
     List<Map<String, Object>> queryFolloweeNotes(int holderId, int offset, int limit);
 
+    /**
+     * 获取笔记信息用于修改帖子
+     *
+     * @param holderId
+     * @param noteId
+     * @return
+     */
+    Map<String, Object> getPostForUpdate(int holderId, int noteId);
+
+    /**
+     * 修改帖子信息
+     *
+     * @param note
+     * @param tags
+     * @param photoList
+     * @return
+     */
+    String updatePost(Note note, int[] tags, String[] photoList);
 }

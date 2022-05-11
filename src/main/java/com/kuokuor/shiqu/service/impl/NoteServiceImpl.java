@@ -419,4 +419,78 @@ public class NoteServiceImpl implements NoteService {
         return notes;
 
     }
+
+    /**
+     * 获取笔记信息用于修改帖子
+     *
+     * @param holderId
+     * @param noteId
+     * @return
+     */
+    @Override
+    public Map<String, Object> getPostForUpdate(int holderId, int noteId) {
+        Note note = noteDao.queryById(noteId);
+        // 如果帖子不存在或不是当前用户的帖子
+        if (note == null || holderId != note.getUserId()) {
+            return null;
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("note", note);
+        data.put("images", imageDao.selectNoteImages(noteId));
+        data.put("tags", tagDao.selectNoteTags(noteId));
+        return data;
+    }
+
+    /**
+     * 修改帖子信息
+     *
+     * @param note
+     * @param tags
+     * @param photoList
+     * @return
+     */
+    @Override
+    public String updatePost(Note note, int[] tags, String[] photoList) {
+        Note oldNote = noteDao.queryById(note.getId());
+        if (oldNote == null) {
+            return "笔记不存在!";
+        }
+        if (oldNote.getUserId() != note.getUserId()) {
+            return "非本用户的笔记!";
+        }
+        User author = userDao.querySimpleUserById(note.getUserId());
+        if (author.getType() == Constants.USER_TYPE_DESTROY) {
+            return "该用户不存在!";
+        }
+        if (note.getType() != 0 && note.getType() != 1) {
+            return "笔记类型错误!";
+        }
+        // 更新笔记
+        noteDao.update(note);
+
+        // 更新images
+        imageDao.deleteNoteImages(note.getId());
+        imageDao.insertNoteImages(note.getId(), photoList);
+
+        // 更新tags
+        // TODO: 需要对tag进行验证
+        tagDao.deleteNoteTags(note.getId());
+        tagDao.insertNoteTags(note.getId(), tags);
+
+        // 同时将数据加入es
+        Event event = new Event()
+                .setTopic(Constants.TOPIC_PUBLISH)
+                .setUserId(note.getUserId())
+                .setEntityType(Constants.ENTITY_TYPE_NOTE)
+                .setEntityId(note.getId());
+        // 发布事件
+        eventProducer.fireEvent(event);
+
+        // 将帖子加入需要更新分数的帖子编号Set中, 等待自动任务更新帖子分数
+        String flushScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisService.addCacheSet(flushScoreKey, note.getId());
+
+        return null;
+    }
 }
