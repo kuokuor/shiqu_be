@@ -63,6 +63,12 @@ public class NoteController {
         }
     }
 
+    /**
+     * 获取笔记详情
+     *
+     * @param noteId
+     * @return
+     */
     @GetMapping("/getNoteDetail/{noteId}")
     public R getNoteDetail(@PathVariable("noteId") int noteId) {
         // 得到当前用户的ID
@@ -80,6 +86,16 @@ public class NoteController {
         return userId == null ? R.ok(postDetail) : R.ok(postDetail, userId.toString());
     }
 
+    /**
+     * 新增笔记
+     *
+     * @param title
+     * @param content
+     * @param type
+     * @param tags
+     * @param photoList
+     * @return
+     */
     @SaCheckLogin
     @PostMapping("/createNote")
     public R createNote(String title, String content, int type, int[] tags, String[] photoList) {
@@ -113,6 +129,49 @@ public class NoteController {
         return msg == null ? R.ok() : R.fail(msg);
     }
 
+    /**
+     * 查询待编辑的笔记信息
+     *
+     * @param noteId
+     * @return
+     */
+    @SaCheckLogin
+    @GetMapping("/getNoteForUpdate/{noteId}")
+    public R getNoteForUpdate(@PathVariable("noteId") int noteId) {
+        Map<String, Object> data = noteService.getPostForUpdate(StpUtil.getLoginIdAsInt(), noteId);
+        return data == null ? R.fail("获取笔记信息出错!") : R.ok(data);
+    }
+
+    /**
+     * 修改笔记
+     *
+     * @param id
+     * @param title
+     * @param content
+     * @param type
+     * @param tags
+     * @param photoList
+     * @return
+     */
+    @SaCheckLogin
+    @PostMapping("/updatePost")
+    public R updatePost(Integer id, String title, String content, int type, int[] tags, String[] photoList) {
+        if (StringUtils.isBlank(title) || StringUtils.isBlank(content) || type < 0 || type > 1 || photoList.length == 0) {
+            return R.fail("请检查各项数据!");
+        }
+        Note note = new Note();
+        note.setId(id);
+        // 当前登录的用户ID就是帖子作者 后面再判断对不对
+        Integer userId = StpUtil.getLoginIdAsInt();
+        note.setUserId(userId);
+        note.setTitle(title);
+        note.setContent(content);
+        note.setType(type);
+        note.setHeadImg(photoList[0]);
+
+        String msg = noteService.updatePost(note, tags, photoList);
+        return msg == null ? R.ok("修改成功!") : R.fail(msg);
+    }
 
     /**
      * 点赞[取消点赞也是调用该方法, 在业务层进行判断]
@@ -186,6 +245,13 @@ public class NoteController {
         // 进行Html转义
         comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
         String msg = commentService.addComment(comment);
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
+    @SaCheckLogin
+    @PostMapping("/deleteComment")
+    public R deleteComment(int commentId) {
+        String msg = commentService.deleteComment(commentId, StpUtil.getLoginIdAsInt());
         return msg == null ? R.ok() : R.fail(msg);
     }
 

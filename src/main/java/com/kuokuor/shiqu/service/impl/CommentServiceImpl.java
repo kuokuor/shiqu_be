@@ -9,6 +9,7 @@ import com.kuokuor.shiqu.event.Event;
 import com.kuokuor.shiqu.event.EventProducer;
 import com.kuokuor.shiqu.service.CommentService;
 import com.kuokuor.shiqu.service.RedisService;
+import com.kuokuor.shiqu.utils.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -69,7 +70,8 @@ public class CommentServiceImpl implements CommentService {
                 .setUserId(comment.getUserId())
                 .setEntityType(comment.getEntityType())
                 .setEntityId(comment.getEntityId())
-                .setData("noteId", noteId);
+                .setData("noteId", noteId)
+                .setData("commentId", comment.getId());
         // 找出该消息是发给谁的
         if (comment.getEntityType() == Constants.ENTITY_TYPE_NOTE) {
             Note target = noteDao.queryById(comment.getEntityId());
@@ -80,6 +82,36 @@ public class CommentServiceImpl implements CommentService {
         }
         eventProducer.fireEvent(commentEvent);
 
+        return null;
+    }
+
+    /**
+     * 删除评论[改变评论状态]
+     *
+     * @param commentId
+     * @param userId
+     * @return
+     */
+    @Override
+    public String deleteComment(int commentId, int userId) {
+        Comment comment = commentDao.queryById(commentId);
+        if (comment == null) {
+            return "评论不存在!";
+        }
+        // 防止评论被他人删除
+        if (userId != comment.getUserId()) {
+            return "无权限!";
+        }
+        // 使评论失效
+        comment.setState(1);
+        // 修改数据库
+        commentDao.update(comment);
+        // 如果是对帖子的评论就要更新帖子的评论数和帖子分数
+        if (comment.getEntityType() == Constants.ENTITY_TYPE_NOTE) {
+            // 将帖子加入需要更新分数的帖子编号Set中, 等待自动任务更新帖子分数
+            String flushScoreKey = RedisKeyUtil.getPostScoreKey();
+            redisService.addCacheSet(flushScoreKey, comment.getEntityId());
+        }
         return null;
     }
 
