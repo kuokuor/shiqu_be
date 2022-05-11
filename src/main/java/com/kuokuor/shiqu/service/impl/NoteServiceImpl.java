@@ -276,7 +276,7 @@ public class NoteServiceImpl implements NoteService {
         // 并且此处的帖子信息已被优化, 没必要全部传输
         List<Note> noteList = noteDao.queryAllByLimit(userId, offset, limit, orderMode);
         if (noteList == null || noteList.size() == 0)
-            return null;
+            return new ArrayList<>();
 
         // 把帖子相关信息封装起来传输
         List<Map<String, Object>> notes = new ArrayList<>();
