@@ -189,6 +189,13 @@ public class NoteController {
         return msg == null ? R.ok() : R.fail(msg);
     }
 
+    @SaCheckLogin
+    @PostMapping("/deleteComment")
+    public R deleteComment(int commentId) {
+        String msg = commentService.deleteComment(commentId, StpUtil.getLoginIdAsInt());
+        return msg == null ? R.ok() : R.fail(msg);
+    }
+
     /**
      * 查询指定tag下的所有笔记
      *
