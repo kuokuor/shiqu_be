@@ -73,3 +73,10 @@ mybatis:
     use-generated-keys: true
     # 字段大小写区分（驼峰式）
     map-underscore-to-camel-case: true
+
+# 七牛云
+qiniu:
+  key:
+    access: xxx
+    secret: xxx
+  bucket: shiqu-images
