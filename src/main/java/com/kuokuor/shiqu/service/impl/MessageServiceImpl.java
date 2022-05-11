@@ -1,9 +1,16 @@
 package com.kuokuor.shiqu.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.kuokuor.shiqu.commom.constant.Constants;
+import com.kuokuor.shiqu.dao.CommentDao;
 import com.kuokuor.shiqu.dao.MessageDao;
+import com.kuokuor.shiqu.dao.NoteDao;
 import com.kuokuor.shiqu.dao.UserDao;
+import com.kuokuor.shiqu.entity.Comment;
 import com.kuokuor.shiqu.entity.Message;
+import com.kuokuor.shiqu.entity.Note;
 import com.kuokuor.shiqu.entity.User;
+import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +31,15 @@ public class MessageServiceImpl implements MessageService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private CommentDao commentDao;
+
+    @Autowired
+    private NoteDao noteDao;
+
+    @Autowired
+    private FollowService followService;
 
     /**
      * 发送私信[发送系统通知在消息队列里实现]
@@ -133,6 +149,152 @@ public class MessageServiceImpl implements MessageService {
         }
 
         return conversationListVo;
+    }
+
+    /**
+     * 获取系统通知未读数量
+     *
+     * @param holderId
+     * @return
+     */
+    @Override
+    public Map<String, Integer> getNoticeUnreadCount(int holderId) {
+        Map<String, Integer> noticeUnreadCount = new HashMap<>();
+        // 点赞通知
+        noticeUnreadCount.put("like", messageDao.queryNoticeUnreadCount(holderId, Constants.TOPIC_LIKE));
+        // 关注通知
+        noticeUnreadCount.put("follow", messageDao.queryNoticeUnreadCount(holderId, Constants.TOPIC_FOLLOW));
+        // 评论通知
+        noticeUnreadCount.put("comment", messageDao.queryNoticeUnreadCount(holderId, Constants.TOPIC_COMMENT));
+        // 收藏通知
+        noticeUnreadCount.put("collect", messageDao.queryNoticeUnreadCount(holderId, Constants.TOPIC_COLLECT));
+
+        return noticeUnreadCount;
+    }
+
+    /**
+     * 查询所有消息的未读数量
+     *
+     * @param holderId
+     * @return
+     */
+    @Override
+    public int getUnreadCount(int holderId) {
+        int sum = 0;
+        // 未读系统通知数量
+        Map<String, Integer> noticeUnreadCount = getNoticeUnreadCount(holderId);
+        for (Integer value : noticeUnreadCount.values()) {
+            sum += value;
+        }
+        // 未读私信数量
+        sum += messageDao.queryLetterUnreadCount(holderId, null);
+        return sum;
+    }
+
+    /**
+     * 获取通知列表[点赞、收藏、评论]
+     *
+     * @param holderId
+     * @param type
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getNoticeList(int holderId, String type) {
+        // 需要处理type
+        String systemType = "shiqu_" + type;
+        List<Message> noticeList = messageDao.queryNotices(holderId, systemType);
+        if (noticeList == null) {
+            return new ArrayList<>();
+        }
+        List<Map<String, Object>> noticeListVo = new ArrayList<>();
+        for (Message notice : noticeList) {
+            Map<String, Object> map = new HashMap<>();
+            // 得到其他数据
+            Map<String, Object> data = JSONObject.parseObject(notice.getContent(), HashMap.class);
+
+            map.put("id", notice.getId());
+            map.put("type", type);
+            map.put("isUnread", notice.getState() != 0);
+
+            Map<String, Object> targetEntity = new HashMap<>();
+            // 先全部置空
+            targetEntity.put("headerImg", null);
+            targetEntity.put("comment", null);
+            if (systemType.equals(Constants.TOPIC_COLLECT)) {
+                // 收藏
+                map.put("noteId", data.get("entityId"));
+                Note note = noteDao.queryById((Integer) data.get("entityId"));
+                targetEntity.put("headerImg", note.getHeadImg());
+            } else if (systemType.equals(Constants.TOPIC_LIKE)) {
+                // 点赞
+                map.put("noteId", data.get("noteId"));
+                Integer likeType = (Integer) data.get("entityType");
+                if (likeType == Constants.ENTITY_TYPE_NOTE) {
+                    Note note = noteDao.queryById((Integer) data.get("entityId"));
+                    targetEntity.put("headerImg", note.getHeadImg());
+                } else {
+                    // 如果是对评论进行点赞就需要记录评论的内容
+                    Comment likeComment = commentDao.queryById((Integer) data.get("entityId"));
+                    targetEntity.put("comment", likeComment.getContent());
+                }
+            } else {
+                // 评论或回复
+                map.put("noteId", data.get("noteId"));
+
+                Integer commentId = (Integer) data.get("commentId");
+                // 查出Comment
+                Comment comment = commentDao.queryById(commentId);
+                if (comment.getEntityType() == Constants.ENTITY_TYPE_COMMENT) {
+                    // 如果是对评论进行回复, 通知的类型就需要变为reply
+                    map.put("type", "reply");
+                    // 如果是回复评论
+                    Comment byComment = commentDao.queryById(comment.getEntityId());
+                    targetEntity.put("comment", byComment.getContent());
+                } else {
+                    // 如果是评论帖子
+                    Note note = noteDao.queryById(comment.getEntityId());
+                    targetEntity.put("headerImg", note.getHeadImg());
+                }
+                map.put("content", comment.getContent());
+            }
+            map.put("targetEntity", targetEntity);
+            map.put("time", notice.getCreateTime());
+
+            // 处理from
+            User user = userDao.querySimpleUserById((Integer) data.get("userId"));
+            map.put("from", user);
+
+            noticeListVo.add(map);
+        }
+        return noticeListVo;
+    }
+
+    /**
+     * 获取关注通知列表
+     *
+     * @param holderId
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getFollowNoticeList(int holderId) {
+        List<Message> noticeList = messageDao.queryNotices(holderId, Constants.TOPIC_FOLLOW);
+        if (noticeList == null) {
+            return new ArrayList<>();
+        }
+        List<Map<String, Object>> noticeListVo = new ArrayList<>();
+        for (Message notice : noticeList) {
+            Map<String, Object> map = new HashMap<>();
+            // 得到其他数据
+            Map<String, Object> data = JSONObject.parseObject(notice.getContent(), HashMap.class);
+            int formId = (Integer) data.get("userId");
+            map.put("form", userDao.querySimpleUserById(formId));
+            map.put("id", notice.getId());
+            map.put("isUnread", notice.getState() != 0);
+            map.put("followed", followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, formId));
+            map.put("time", notice.getCreateTime());
+            noticeListVo.add(map);
+        }
+        return noticeListVo;
     }
 
     /**

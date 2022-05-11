@@ -24,10 +24,14 @@ public class SearchTest {
 
     @Test
     public void saveNote() {
-        Note note = noteDao.queryById(1);
-        searchService.saveNote(note);
-        note = noteDao.queryById(2);
-        searchService.saveNote(note);
+        Note note;
+        for (int i = 1; i <= 26; i++) {
+            note = noteDao.queryById(i);
+            if (note != null) {
+                searchService.saveNote(note);
+            }
+        }
+
     }
 
 

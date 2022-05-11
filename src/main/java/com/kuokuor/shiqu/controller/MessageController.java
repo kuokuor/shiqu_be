@@ -69,4 +69,52 @@ public class MessageController {
         return R.ok(messageService.getLetterHome(StpUtil.getLoginIdAsInt()));
     }
 
+    /**
+     * 获取通知列表[点赞、收藏、评论]
+     *
+     * @param type
+     * @return
+     */
+    @SaCheckLogin
+    @PostMapping("/getNoticeList")
+    public R getNoticeList(String type) {
+        return R.ok(messageService.getNoticeList(StpUtil.getLoginIdAsInt(), type));
+    }
+
+    /**
+     * 获取关注通知列表
+     *
+     * @return
+     */
+    @SaCheckLogin
+    @GetMapping("/getFollowNoticeList")
+    public R getFollowNoticeList() {
+        return R.ok(messageService.getFollowNoticeList(StpUtil.getLoginIdAsInt()));
+    }
+
+    /**
+     * 获取未读系统通知数量
+     *
+     * @return
+     */
+    @SaCheckLogin
+    @GetMapping("/getUnreadNoticeCount")
+    public R getUnreadNoticeCount() {
+        return R.ok(messageService.getNoticeUnreadCount(StpUtil.getLoginIdAsInt()));
+    }
+
+    /**
+     * 得到所有的未读总数
+     *
+     * @return
+     */
+    @GetMapping("/getUnreadCount")
+    public R getUnreadCount() {
+        // 因为首页需要请求, 不能直接进行登录拦截
+        if (!StpUtil.isLogin()) {
+            return R.ok(0);
+        }
+        return R.ok(messageService.getUnreadCount(StpUtil.getLoginIdAsInt()));
+    }
+
 }

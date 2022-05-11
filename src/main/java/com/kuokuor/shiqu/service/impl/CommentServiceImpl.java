@@ -69,7 +69,8 @@ public class CommentServiceImpl implements CommentService {
                 .setUserId(comment.getUserId())
                 .setEntityType(comment.getEntityType())
                 .setEntityId(comment.getEntityId())
-                .setData("noteId", noteId);
+                .setData("noteId", noteId)
+                .setData("commentId", comment.getId());
         // 找出该消息是发给谁的
         if (comment.getEntityType() == Constants.ENTITY_TYPE_NOTE) {
             Note target = noteDao.queryById(comment.getEntityId());

@@ -37,4 +37,37 @@ public interface MessageService {
      * @return
      */
     List<Map<String, Object>> getLetterHome(int userId);
+
+    /**
+     * 获取系统通知未读数量
+     *
+     * @param holderId
+     * @return
+     */
+    Map<String, Integer> getNoticeUnreadCount(int holderId);
+
+    /**
+     * 查询所有消息的未读数量
+     *
+     * @param holderId
+     * @return
+     */
+    int getUnreadCount(int holderId);
+
+    /**
+     * 获取通知列表[点赞、收藏、评论]
+     *
+     * @param holderId
+     * @param type
+     * @return
+     */
+    List<Map<String, Object>> getNoticeList(int holderId, String type);
+
+    /**
+     * 获取关注通知列表
+     *
+     * @param holderId
+     * @return
+     */
+    List<Map<String, Object>> getFollowNoticeList(int holderId);
 }
