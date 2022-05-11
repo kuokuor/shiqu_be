@@ -167,6 +167,11 @@ public class FollowServiceImpl implements FollowService {
             Map<String, Object> map = new HashMap<>();
             // 用简单信息就够了
             User user = userDao.querySimpleUserById(followeeId);
+            if (user == null) {
+                // 从zset把它删除, 因为已经不存在了
+                redisTemplate.opsForZSet().remove(redisKey, followeeId);
+                continue;
+            }
             map.put("user", user);
             // 把关注的时间转换为时间格式返回去
             Double score = redisService.getZSetScore(redisKey, followeeId);
@@ -204,6 +209,11 @@ public class FollowServiceImpl implements FollowService {
             Map<String, Object> map = new HashMap<>();
             // 用简单信息就够了
             User user = userDao.querySimpleUserById(fansId);
+            if (user == null) {
+                // 从zset把它删除, 因为已经不存在了
+                redisTemplate.opsForZSet().remove(redisKey, fansId);
+                continue;
+            }
             map.put("user", user);
             // 把关注的时间转换为时间格式返回去
             Double score = redisService.getZSetScore(redisKey, fansId);

@@ -78,6 +78,8 @@ public class CollectServiceImpl implements CollectService {
             Note note = noteDao.queryById(noteId);
             // 防止帖子被删除而不存在
             if (note == null) {
+                // 从zset把它删除, 因为已经不存在了
+                redisTemplate.opsForZSet().remove(redisKey, noteId);
                 continue;
             }
             // note
