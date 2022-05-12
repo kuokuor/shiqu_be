@@ -206,6 +206,8 @@ public class MessageServiceImpl implements MessageService {
         if (noticeList == null) {
             return new ArrayList<>();
         }
+        // 将私信设为已读
+        readMessage(noticeList, holderId);
         List<Map<String, Object>> noticeListVo = new ArrayList<>();
         for (Message notice : noticeList) {
             Map<String, Object> map = new HashMap<>();
@@ -214,7 +216,7 @@ public class MessageServiceImpl implements MessageService {
 
             map.put("id", notice.getId());
             map.put("type", type);
-            map.put("isUnread", notice.getState() != 0);
+            map.put("isUnread", notice.getState() == 0);
 
             Map<String, Object> targetEntity = new HashMap<>();
             // 先全部置空
@@ -281,16 +283,18 @@ public class MessageServiceImpl implements MessageService {
         if (noticeList == null) {
             return new ArrayList<>();
         }
+        // 将私信设为已读
+        readMessage(noticeList, holderId);
         List<Map<String, Object>> noticeListVo = new ArrayList<>();
         for (Message notice : noticeList) {
             Map<String, Object> map = new HashMap<>();
             // 得到其他数据
             Map<String, Object> data = JSONObject.parseObject(notice.getContent(), HashMap.class);
-            int formId = (Integer) data.get("userId");
-            map.put("form", userDao.querySimpleUserById(formId));
+            int fromId = (Integer) data.get("userId");
+            map.put("from", userDao.querySimpleUserById(fromId));
             map.put("id", notice.getId());
-            map.put("isUnread", notice.getState() != 0);
-            map.put("followed", followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, formId));
+            map.put("isUnread", notice.getState() == 0);
+            map.put("followed", followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, fromId));
             map.put("time", notice.getCreateTime());
             noticeListVo.add(map);
         }
