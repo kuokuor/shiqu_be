@@ -183,7 +183,7 @@ public class UserController {
         return R.ok(StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null);
     }
 
-    @PostMapping("/ ")
+    @PostMapping("/searchByNickname")
     public R searchByNickname(String key) {
         if (StringUtils.isBlank(key)) {
             return R.fail("键为空!");
