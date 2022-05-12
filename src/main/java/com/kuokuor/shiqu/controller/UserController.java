@@ -9,6 +9,7 @@ import com.kuokuor.shiqu.entity.User;
 import com.kuokuor.shiqu.service.CollectService;
 import com.kuokuor.shiqu.service.FollowService;
 import com.kuokuor.shiqu.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -180,6 +181,14 @@ public class UserController {
     @GetMapping("/getHolderUserId")
     public R getHolderUserId() {
         return R.ok(StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null);
+    }
+
+    @PostMapping("/ ")
+    public R searchByNickname(String key) {
+        if (StringUtils.isBlank(key)) {
+            return R.fail("键为空!");
+        }
+        return R.ok(userService.searchByNickname(StpUtil.isLogin() ? StpUtil.getLoginIdAsInt() : null, key));
     }
 
     // ----------------------------以上为用户信息相关操作----------------------------

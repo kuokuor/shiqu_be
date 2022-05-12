@@ -3,6 +3,8 @@ package com.kuokuor.shiqu.dao;
 import com.kuokuor.shiqu.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 用户表(User)表数据库访问层
  *
@@ -59,5 +61,13 @@ public interface UserDao {
      * @return
      */
     User querySimpleUserById(Integer id);
+
+    /**
+     * 搜索用户
+     *
+     * @param key
+     * @return
+     */
+    List<User> searchByNickname(String key);
 }
 

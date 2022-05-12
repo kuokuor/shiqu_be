@@ -108,5 +108,15 @@
         where id = #{id}
     </select>
 
+    <select id="searchByNickname" resultMap="UserMap">
+        select id,
+               avatar,
+               nickname,
+               sex,
+               description
+        from user
+        where nickname like #{key}
+    </select>
+
 </mapper>
 

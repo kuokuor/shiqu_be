@@ -14,10 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -325,6 +322,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean exitsUser(int userId) {
         return userDao.querySimpleUserById(userId) != null;
+    }
+
+    /**
+     * 搜索用户
+     *
+     * @param holderId 当前用户不存在则为null
+     * @param key
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> searchByNickname(Integer holderId, String key) {
+        List<User> userList = userDao.searchByNickname("%" + key + "%");
+        if (userList == null) {
+            return new ArrayList<>();
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (User user : userList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", user.getId());
+            map.put("nickname", user.getNickname());
+            map.put("avatar", user.getAvatar());
+            map.put("sex", user.getSex());
+            map.put("description", user.getDescription());
+            map.put("hasFollowed", holderId != null && followService.hasFollowed(holderId, Constants.ENTITY_TYPE_USER, user.getId()));
+            result.add(map);
+        }
+        return result;
     }
 
     //使用Redis优化

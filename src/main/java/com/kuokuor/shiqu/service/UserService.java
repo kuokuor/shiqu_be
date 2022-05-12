@@ -2,6 +2,7 @@ package com.kuokuor.shiqu.service;
 
 import com.kuokuor.shiqu.entity.User;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,4 +90,13 @@ public interface UserService {
      * @return
      */
     boolean exitsUser(int userId);
+
+    /**
+     * 搜索用户
+     *
+     * @param holderId 当前用户不存在则为null
+     * @param key
+     * @return
+     */
+    List<Map<String, Object>> searchByNickname(Integer holderId, String key);
 }
