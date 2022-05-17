@@ -71,6 +71,11 @@ public class NoteServiceImpl implements NoteService {
         if (note == null) {
             return "未获取到帖子信息!";
         }
+        for (int tag : tags ) {
+            if(tag < 0 || tag > 17) {
+                return "标签不存在!";
+            }
+        }
         // 直接插入数据库
         noteDao.insert(note);
 
@@ -209,9 +214,9 @@ public class NoteServiceImpl implements NoteService {
                     for (Comment reply : replyList) {
                         Map<String, Object> replyVo = new HashMap<>();
                         // 回复
-                        commentVo.put("id", reply.getId());
+                        replyVo.put("id", reply.getId());
                         replyVo.put("replyText", reply.getContent());
-                        commentVo.put("replyTime", reply.getCreateTime());
+                        replyVo.put("replyTime", reply.getCreateTime());
                         // 作者
                         replyVo.put("user", userDao.querySimpleUserById(reply.getUserId()));
                         // 回复目标
@@ -452,6 +457,11 @@ public class NoteServiceImpl implements NoteService {
      */
     @Override
     public String updatePost(Note note, int[] tags, String[] photoList) {
+        for (int tag : tags ) {
+            if(tag < 0 || tag > 17) {
+                return "标签不存在!";
+            }
+        }
         Note oldNote = noteDao.queryById(note.getId());
         if (oldNote == null) {
             return "笔记不存在!";
@@ -474,7 +484,6 @@ public class NoteServiceImpl implements NoteService {
         imageDao.insertNoteImages(note.getId(), photoList);
 
         // 更新tags
-        // TODO: 需要对tag进行验证
         tagDao.deleteNoteTags(note.getId());
         tagDao.insertNoteTags(note.getId(), tags);
 

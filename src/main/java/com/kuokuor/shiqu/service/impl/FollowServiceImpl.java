@@ -47,6 +47,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     public void follow(int userId, int entityType, int entityId, int entityUserId) {
+        // TODO: 收藏和关注需要区分
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations redisOperations) throws DataAccessException {

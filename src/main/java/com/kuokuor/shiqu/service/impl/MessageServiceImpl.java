@@ -226,6 +226,8 @@ public class MessageServiceImpl implements MessageService {
                 // 收藏
                 map.put("noteId", data.get("entityId"));
                 Note note = noteDao.queryById((Integer) data.get("entityId"));
+                if (note == null)
+                    continue;
                 targetEntity.put("headerImg", note.getHeadImg());
             } else if (systemType.equals(Constants.TOPIC_LIKE)) {
                 // 点赞
@@ -233,6 +235,8 @@ public class MessageServiceImpl implements MessageService {
                 Integer likeType = (Integer) data.get("entityType");
                 if (likeType == Constants.ENTITY_TYPE_NOTE) {
                     Note note = noteDao.queryById((Integer) data.get("entityId"));
+                    if (note == null)
+                        continue;
                     targetEntity.put("headerImg", note.getHeadImg());
                 } else {
                     // 如果是对评论进行点赞就需要记录评论的内容
@@ -255,6 +259,8 @@ public class MessageServiceImpl implements MessageService {
                 } else {
                     // 如果是评论帖子
                     Note note = noteDao.queryById(comment.getEntityId());
+                    if (note == null)
+                        continue;
                     targetEntity.put("headerImg", note.getHeadImg());
                 }
                 map.put("content", comment.getContent());
