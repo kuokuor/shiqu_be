@@ -143,6 +143,7 @@ public class MessageServiceImpl implements MessageService {
             from.put("id", tUser.getId());
             from.put("nickname", tUser.getNickname());
             from.put("avatar", tUser.getAvatar());
+            from.put("type", tUser.getType());
             conversationVo.put("from", from);
 
             conversationListVo.add(conversationVo);

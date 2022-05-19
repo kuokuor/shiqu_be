@@ -172,6 +172,7 @@ public class NoteServiceImpl implements NoteService {
         author.put("id", noteAuthor.getId());
         author.put("nickname", noteAuthor.getNickname());
         author.put("avatar", noteAuthor.getAvatar());
+        author.put("type", noteAuthor.getType());
         // 当前用户是否关注这一用户
         author.put("followed", holderUserId != null
                 && followService.hasFollowed(holderUserId, Constants.ENTITY_TYPE_USER, noteAuthor.getId()));
