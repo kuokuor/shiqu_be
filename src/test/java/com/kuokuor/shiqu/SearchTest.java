@@ -25,7 +25,7 @@ public class SearchTest {
     @Test
     public void saveNote() {
         Note note;
-        for (int i = 1; i <= 26; i++) {
+        for (int i = 1; i <= 35; i++) {
             note = noteDao.queryById(i);
             if (note != null) {
                 searchService.saveNote(note);

@@ -14,7 +14,7 @@ import java.util.Date;
  * @author makejava
  * @since 2022-05-05 19:37:37
  */
-@Document(indexName = "note")
+@Document(indexName = "shiqu_note")
 public class Note implements Serializable {
     private static final long serialVersionUID = -23681811701132043L;
     /**
