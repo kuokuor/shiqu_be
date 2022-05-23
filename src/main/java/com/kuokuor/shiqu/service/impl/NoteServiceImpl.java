@@ -467,11 +467,11 @@ public class NoteServiceImpl implements NoteService {
         if (oldNote == null) {
             return "笔记不存在!";
         }
-        if (oldNote.getUserId() != note.getUserId()) {
+        if (!Objects.equals(oldNote.getUserId(), note.getUserId())) {
             return "非本用户的笔记!";
         }
         User author = userDao.querySimpleUserById(note.getUserId());
-        if (author.getType() == Constants.USER_TYPE_DESTROY) {
+        if (Objects.equals(author.getType(), Constants.USER_TYPE_DESTROY)) {
             return "该用户不存在!";
         }
         if (note.getType() != 0 && note.getType() != 1) {

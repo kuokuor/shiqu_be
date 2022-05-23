@@ -234,7 +234,7 @@ public class MessageServiceImpl implements MessageService {
                 // 点赞
                 map.put("noteId", data.get("noteId"));
                 Integer likeType = (Integer) data.get("entityType");
-                if (likeType == Constants.ENTITY_TYPE_NOTE) {
+                if (Objects.equals(likeType, Constants.ENTITY_TYPE_NOTE)) {
                     Note note = noteDao.queryById((Integer) data.get("entityId"));
                     if (note == null)
                         continue;

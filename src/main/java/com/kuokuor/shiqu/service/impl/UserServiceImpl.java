@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 判断账号是否注销[886为注销]
-        if (user.getType() == Constants.USER_TYPE_DESTROY) {
+        if (Objects.equals(user.getType(), Constants.USER_TYPE_DESTROY)) {
             return "账号已被注销!";
         }
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         password = PasswordUtil.md5(password + user.getSalt());
 
         //验证密码
-        if (!password.equals(user.getPassword())) {
+        if (!Objects.equals(password, user.getPassword())) {
             return "密码错误!";
         }
 

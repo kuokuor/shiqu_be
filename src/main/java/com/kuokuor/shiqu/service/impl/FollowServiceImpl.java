@@ -47,7 +47,6 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     public void follow(int userId, int entityType, int entityId, int entityUserId) {
-        // TODO: 收藏和关注需要区分
         redisTemplate.execute(new SessionCallback() {
             @Override
             public Object execute(RedisOperations redisOperations) throws DataAccessException {
@@ -60,14 +59,24 @@ public class FollowServiceImpl implements FollowService {
                 return redisOperations.exec();
             }
         });
+        // 收藏和关注需要区分
         // 发送系统通知
-        Event event = new Event()
-                .setTopic(entityType == Constants.ENTITY_TYPE_NOTE ?
-                        Constants.TOPIC_COLLECT : Constants.TOPIC_FOLLOW) // 判断是收藏帖子还是关注用户
-                .setUserId(userId)
-                .setEntityType(entityType)
-                .setEntityId(entityId)
-                .setEntityUserId(entityUserId);
+        Event event = new Event();
+        if (entityType == Constants.ENTITY_TYPE_NOTE) {
+            // 收藏帖子
+            event.setTopic(Constants.TOPIC_COLLECT)
+                    .setUserId(userId)
+                    .setEntityType(entityType)
+                    .setEntityId(entityId)
+                    .setEntityUserId(entityUserId);
+        } else {
+            event.setTopic(Constants.TOPIC_FOLLOW)
+                    .setUserId(userId)
+                    .setEntityType(entityType)
+                    .setEntityId(entityId)
+                    .setEntityUserId(entityId);
+        }
+
         // 发布事件
         eventProducer.fireEvent(event);
 

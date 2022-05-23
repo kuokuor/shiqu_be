@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * 评论业务层
@@ -56,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
 
         int noteId = comment.getEntityId();
         // 如果当前是对评论的回复，则查询出评论所在的帖子ID
-        if (comment.getEntityType() == Constants.ENTITY_TYPE_COMMENT) {
+        if (Objects.equals(comment.getEntityType(), Constants.ENTITY_TYPE_COMMENT)) {
             Comment fatherComment = commentDao.queryById(comment.getEntityId());
             noteId = fatherComment.getEntityId();
         }
@@ -73,12 +74,20 @@ public class CommentServiceImpl implements CommentService {
                 .setData("noteId", noteId)
                 .setData("commentId", comment.getId());
         // 找出该消息是发给谁的
-        if (comment.getEntityType() == Constants.ENTITY_TYPE_NOTE) {
+        if (Objects.equals(comment.getEntityType(), Constants.ENTITY_TYPE_NOTE)) {
             Note target = noteDao.queryById(comment.getEntityId());
             commentEvent.setEntityUserId(target.getUserId());
+            // 刷新帖子分数
+            String flushScoreKey = RedisKeyUtil.getPostScoreKey();
+            redisService.addCacheSet(flushScoreKey, comment.getEntityId());
         } else {
-            Comment target = commentDao.queryById(comment.getEntityId());
-            commentEvent.setEntityUserId(target.getUserId());
+            if (comment.getTargetId() == 0) {
+                Comment target = commentDao.queryById(comment.getEntityId());
+                commentEvent.setEntityUserId(target.getUserId());
+            } else {
+                // 有目标用户
+                commentEvent.setEntityUserId(comment.getTargetId());
+            }
         }
         eventProducer.fireEvent(commentEvent);
 
@@ -107,7 +116,7 @@ public class CommentServiceImpl implements CommentService {
         // 修改数据库
         commentDao.update(comment);
         // 如果是对帖子的评论就要更新帖子的评论数和帖子分数
-        if (comment.getEntityType() == Constants.ENTITY_TYPE_NOTE) {
+        if (Objects.equals(comment.getEntityType(), Constants.ENTITY_TYPE_NOTE)) {
             // 将帖子加入需要更新分数的帖子编号Set中, 等待自动任务更新帖子分数
             String flushScoreKey = RedisKeyUtil.getPostScoreKey();
             redisService.addCacheSet(flushScoreKey, comment.getEntityId());
