@@ -99,4 +99,29 @@ public interface UserService {
      * @return
      */
     List<Map<String, Object>> searchByNickname(Integer holderId, String key);
+
+    /**
+     * 管理员登录[会对用户类型进行判断]
+     *
+     * @param email
+     * @param password
+     * @return
+     */
+    String adminLogin(String email, String password);
+
+    /**
+     * 修改用户权限
+     *
+     * @param userId
+     * @param type   用户类型
+     * @return
+     */
+    String grant(int userId, int type);
+
+    /**
+     * 用户数量
+     *
+     * @return
+     */
+    Map<String, Object> userCount();
 }

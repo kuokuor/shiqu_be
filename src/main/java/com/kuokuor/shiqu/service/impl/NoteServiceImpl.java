@@ -503,4 +503,49 @@ public class NoteServiceImpl implements NoteService {
 
         return null;
     }
+
+    /**
+     * 删除帖子[管理员专属]
+     *
+     * @param noteId
+     * @return
+     */
+    @Override
+    public String deleteNoteForAdmin(int noteId) {
+        // 该请求数量较少, 可以直接把笔记全部查出来
+        Note note = noteDao.queryById(noteId);
+        if (note == null) {
+            return "数据不存在!";
+        }
+        // 删除帖子
+        noteDao.deleteById(noteId);
+        // 触发删帖事件, 从es中删除数据
+        Event event = new Event()
+                .setTopic(Constants.TOPIC_DELETE)
+                .setUserId(note.getUserId())
+                .setEntityType(Constants.ENTITY_TYPE_NOTE)
+                .setEntityId(noteId);
+        eventProducer.fireEvent(event);
+        return null;
+    }
+
+    /**
+     * 笔记数量
+     *
+     * @return
+     */
+    @Override
+    public Map<String, Object> noteCount() {
+        Map<String, Object> data = new HashMap<>();
+        // 查询所以笔记数量
+        Note note = new Note();
+        data.put("allNote", noteDao.count(note));
+        // 查询美食笔记数量
+        note.setType(0);
+        data.put("foodNote", noteDao.count(note));
+        // 查询探店笔记数量
+        note.setType(1);
+        data.put("shopNote", noteDao.count(note));
+        return data;
+    }
 }

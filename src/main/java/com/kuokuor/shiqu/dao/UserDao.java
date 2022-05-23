@@ -69,5 +69,21 @@ public interface UserDao {
      * @return
      */
     List<User> searchByNickname(String key);
+
+    /**
+     * 查询用户类型
+     *
+     * @param userId
+     * @return
+     */
+    int getUserType(int userId);
+
+    /**
+     * 统计用户
+     *
+     * @param user
+     * @return
+     */
+    long count(User user);
 }
 

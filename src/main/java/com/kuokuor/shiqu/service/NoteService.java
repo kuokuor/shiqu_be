@@ -104,4 +104,19 @@ public interface NoteService {
      * @return
      */
     String updatePost(Note note, int[] tags, String[] photoList);
+
+    /**
+     * 删除帖子[管理员专属]
+     *
+     * @param noteId
+     * @return
+     */
+    String deleteNoteForAdmin(int noteId);
+
+    /**
+     * 笔记数量
+     *
+     * @return
+     */
+    Map<String, Object> noteCount();
 }

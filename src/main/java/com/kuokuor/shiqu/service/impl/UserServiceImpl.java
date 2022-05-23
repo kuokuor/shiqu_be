@@ -351,6 +351,67 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    /**
+     * 管理员登录[会对用户类型进行判断]
+     *
+     * @param email
+     * @param password
+     * @return
+     */
+    @Override
+    public String adminLogin(String email, String password) {
+        User user = userDao.queryByEmail(email);
+        // 如果不是管理员则报错
+        if (user.getType() != 999) {
+            return "非管理员, 无权限!";
+        }
+        // 否则就进行正常的登录处理
+        return login(email, password);
+    }
+
+    /**
+     * 修改用户权限
+     *
+     * @param userId
+     * @param type   用户类型
+     * @return
+     */
+    @Override
+    public String grant(int userId, int type) {
+        User user = userDao.queryById(userId);
+        if (user == null) {
+            return "用户不存在";
+        }
+        // 修改用户类型
+        User newUser = new User();
+        user.setType(type);
+        userDao.update(newUser);
+        return null;
+    }
+
+    /**
+     * 用户数量
+     *
+     * @return
+     */
+    @Override
+    public Map<String, Object> userCount() {
+        Map<String, Object> data = new HashMap<>();
+        // 查询所有用户数量
+        User user = new User();
+        data.put("allUser", userDao.count(user));
+        // 查询未知性别用户
+        user.setSex(0);
+        data.put("unknownUser", userDao.count(user));
+        // 查询男性用户
+        user.setSex(1);
+        data.put("maleUser", userDao.count(user));
+        // 查询女性用户
+        user.setSex(2);
+        data.put("femaleUser", userDao.count(user));
+        return null;
+    }
+
     //使用Redis优化
     //1.优先从缓存里查
     private User getCache(int userId) {

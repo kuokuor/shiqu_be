@@ -44,7 +44,7 @@ public class User implements Serializable {
      */
     private String description;
     /**
-     * 用户类型[0-普通用户 886-注销]
+     * 用户类型[0-普通用户 886-注销 999-管理员]
      */
     private Integer type;
     /**

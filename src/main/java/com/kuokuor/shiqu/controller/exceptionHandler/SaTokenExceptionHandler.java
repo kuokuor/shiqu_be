@@ -19,7 +19,7 @@ public class SaTokenExceptionHandler {
         // 不同异常返回不同状态码
         String message = "";
         if (nle.getType().equals(NotLoginException.NOT_TOKEN)) {
-            message = "未提供Token";
+            message = "未登录";
         } else if (nle.getType().equals(NotLoginException.INVALID_TOKEN)) {
             message = "未提供有效的Token";
         } else if (nle.getType().equals(NotLoginException.TOKEN_TIMEOUT)) {
