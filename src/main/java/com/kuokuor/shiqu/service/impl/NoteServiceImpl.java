@@ -548,4 +548,15 @@ public class NoteServiceImpl implements NoteService {
         data.put("shopNote", noteDao.count(note));
         return data;
     }
+
+    /**
+     * 获取所有笔记数据
+     *
+     * @return
+     */
+    @Override
+    public List<Note> getAllNote() {
+        List<Note> noteList = noteDao.getAllNote();
+        return noteList;
+    }
 }

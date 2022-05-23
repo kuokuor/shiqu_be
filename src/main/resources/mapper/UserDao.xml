@@ -118,7 +118,7 @@
         where nickname like #{key}
     </select>
 
-    <select id="getUserType">
+    <select id="getUserType" resultType="int">
         select type
         from user
         where id = #{userId}
@@ -160,6 +160,20 @@
                 and create_time = #{createTime}
             </if>
         </where>
+    </select>
+
+    <!--查询所有用户数据-->
+    <select id="getAllUser" resultMap="UserMap">
+        select id,
+               email,
+               avatar,
+               nickname,
+               sex,
+               description,
+               type,
+               create_time
+        from user
+        where type != 886
     </select>
 
 </mapper>

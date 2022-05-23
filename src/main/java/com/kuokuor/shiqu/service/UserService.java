@@ -124,4 +124,11 @@ public interface UserService {
      * @return
      */
     Map<String, Object> userCount();
+
+    /**
+     * 获取所有用户数据
+     *
+     * @return
+     */
+    List<User> getAllUser();
 }

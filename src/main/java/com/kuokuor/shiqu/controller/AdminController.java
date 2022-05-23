@@ -61,6 +61,30 @@ public class AdminController {
     }
 
     /**
+     * 获取所有用户数据
+     *
+     * @return
+     */
+    @SaCheckLogin
+    @SaCheckRole("admin")
+    @GetMapping("/getAllUser")
+    public R getAllUser() {
+        return R.ok(userService.getAllUser());
+    }
+
+    /**
+     * 获取所有笔记数据
+     *
+     * @return
+     */
+    @SaCheckLogin
+    @SaCheckRole("admin")
+    @GetMapping("/getAllNote")
+    public R getAllNote() {
+        return R.ok(noteService.getAllNote());
+    }
+
+    /**
      * 修改用户权限
      *
      * @param userId

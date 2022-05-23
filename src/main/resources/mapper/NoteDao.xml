@@ -146,5 +146,18 @@
         limit #{offset}, #{limit}
     </select>
 
+    <!--查询所有笔记数据-->
+    <select id="getAllNote" resultMap="NoteMap">
+        select id,
+               user_id,
+               title,
+               type,
+               content,
+               create_time,
+               score,
+               head_img
+        from note
+    </select>
+
 </mapper>
 

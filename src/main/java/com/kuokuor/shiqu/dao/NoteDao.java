@@ -78,5 +78,12 @@ public interface NoteDao {
      * @return
      */
     List<Note> queryFolloweeNotes(int offset, int limit, @Param("ids") Set<Integer> ids);
+
+    /**
+     * 获取所有笔记数据
+     *
+     * @return
+     */
+    List<Note> getAllNote();
 }
 

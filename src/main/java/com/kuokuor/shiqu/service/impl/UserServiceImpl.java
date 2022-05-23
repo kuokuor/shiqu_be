@@ -412,6 +412,17 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    /**
+     * 获取所有用户数据
+     *
+     * @return
+     */
+    @Override
+    public List<User> getAllUser() {
+        List<User> userList = userDao.getAllUser();
+        return userList;
+    }
+
     //使用Redis优化
     //1.优先从缓存里查
     private User getCache(int userId) {

@@ -85,5 +85,12 @@ public interface UserDao {
      * @return
      */
     long count(User user);
+
+    /**
+     * 获取所有用户数据
+     *
+     * @return
+     */
+    List<User> getAllUser();
 }
 

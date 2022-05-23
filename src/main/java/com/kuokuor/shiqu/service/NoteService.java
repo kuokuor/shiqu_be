@@ -119,4 +119,11 @@ public interface NoteService {
      * @return
      */
     Map<String, Object> noteCount();
+
+    /**
+     * 获取所有笔记数据
+     *
+     * @return
+     */
+    List<Note> getAllNote();
 }
