@@ -384,7 +384,8 @@ public class UserServiceImpl implements UserService {
         }
         // 修改用户类型
         User newUser = new User();
-        user.setType(type);
+        newUser.setId(userId);
+        newUser.setType(type);
         userDao.update(newUser);
         return null;
     }
@@ -409,7 +410,7 @@ public class UserServiceImpl implements UserService {
         // 查询女性用户
         user.setSex(2);
         data.put("femaleUser", userDao.count(user));
-        return null;
+        return data;
     }
 
     /**
