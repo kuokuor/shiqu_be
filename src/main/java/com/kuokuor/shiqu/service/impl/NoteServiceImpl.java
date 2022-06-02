@@ -83,7 +83,10 @@ public class NoteServiceImpl implements NoteService {
         imageDao.insertNoteImages(note.getId(), images);
 
         // 插入tag
-        tagDao.insertNoteTags(note.getId(), tags);
+        if (tags.length > 0) {
+            tagDao.insertNoteTags(note.getId(), tags);
+        }
+
 
         // 同时将数据加入es
         Event event = new Event()
@@ -295,6 +298,7 @@ public class NoteServiceImpl implements NoteService {
             noteInfo.put("title", note.getTitle());
             noteInfo.put("editTime", note.getCreateTime());
             noteInfo.put("headerImg", note.getHeadImg());
+            noteInfo.put("content", note.getContent());
             // 点赞数据处理
             noteInfo.put("likeCount", likeService.findEntityLikeCount(Constants.ENTITY_TYPE_NOTE, note.getId()));
             boolean liked = false;
@@ -486,7 +490,9 @@ public class NoteServiceImpl implements NoteService {
 
         // 更新tags
         tagDao.deleteNoteTags(note.getId());
-        tagDao.insertNoteTags(note.getId(), tags);
+        if (tags.length > 0) {
+            tagDao.insertNoteTags(note.getId(), tags);
+        }
 
         // 同时将数据加入es
         Event event = new Event()
